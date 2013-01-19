@@ -71,6 +71,17 @@ class DataBase(object):
         return [limit]
 
     def list_file_path(self, limit, activity_types=None, unique=True):
+        """
+        Return an iterator which yields file paths.
+
+        :type          limit: int
+        :arg           limit: maximum number of files to list
+        :type activity_types: tuple
+        :arg  activity_types: subset of :attr:`ACTIVITY_TYPES`
+        :type         unique: bool
+        :arg          unique: if true (default), strip off duplications
+
+        """
         args = (limit, activity_types, unique)
         with closing(self._get_db()) as db:
             cursor = db.execute(
