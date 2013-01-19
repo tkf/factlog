@@ -55,3 +55,15 @@ class DataBase(object):
                 """,
                 [file_path, file_point, activity_type])
             db.commit()
+
+    def list_file_path(self, limit, activity_types=None):
+        with closing(self._get_db()) as db:
+            cursor = db.execute(
+                """
+                SELECT file_path FROM file_log
+                ORDER BY recorded DESC
+                LIMIT ?
+                """,
+                [limit])
+            for (file_path,) in cursor:
+                yield file_path

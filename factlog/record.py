@@ -1,3 +1,6 @@
+import sys
+import itertools
+
 from .config import ConfigStore
 from .database import DataBase
 
@@ -23,15 +26,31 @@ def record_run(file_path, file_point, activity_type):
         file_path, file_point=file_point, activity_type=activity_type)
 
 
+def interleave(*iters):
+    while True:
+        for it in iters:
+            yield next(it)
+
+
 def list_add_arguments(parser):
-    parser.add_argument('--limit')
+    import argparse
+    parser.add_argument('--limit', type=int, default=20)
+    parser.add_argument('--output', default='-', type=argparse.FileType('w'),
+                        help='file to write output. "-" means stdout.')
 
 
-def list_run(limit):
+def list_run(limit, output):
     """
     List recently accessed files.
     """
-    pass
+    separator = '\n'
+    db = get_db()
+    paths = db.list_file_path(
+        limit)
+    output.writelines(interleave(paths, itertools.repeat(separator)))
+    output.write(separator)
+    if output is not sys.stdout:
+        output.close()
 
 
 commands = [
