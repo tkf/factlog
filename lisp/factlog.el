@@ -52,6 +52,12 @@
   "Command to run factlog CLI."
   :group 'factlog)
 
+(defun factlog:call-process (args buffer)
+  (let* ((command (append factlog:command args))
+         (program (car command))
+         (rest (cdr command)))
+    (apply #'call-process program nil buffer nil rest)))
+
 (defun factlog:deferred-process (&rest args)
   (apply #'deferred:process (append factlog:command args)))
 
@@ -89,6 +95,35 @@
     (remove-hook 'find-file-hook 'factlog:find-file-handler)
     (remove-hook 'after-save-hook 'factlog:after-save-handler)
     (remove-hook 'kill-buffer-hook 'factlog:kill-buffer-handler)))
+
+
+;;; Helm/anything interface
+(declare-function helm "helm")
+(declare-function anything "anything")
+
+(defun factlog:list-call-process (buffer)
+  (factlog:call-process '("list") buffer))
+
+(defun factlog:list-make-source (helm)
+  (let ((get-buffer (intern (format "%s-candidate-buffer" helm))))
+    `((name . "factlog list")
+      (candidates-in-buffer)
+      (init . (lambda ()
+                (factlog:list-call-process (,get-buffer 'global))))
+      (type . file))))
+
+(defvar helm-c-source-factlog-list (factlog:list-make-source 'helm))
+(defvar anything-c-source-factlog-list (factlog:list-make-source 'anything))
+
+(defun helm-factlog-list ()
+  (interactive)
+  (helm :sources '(helm-c-source-factlog-list)
+        :buffer "*helm factlog list*"))
+
+(defun anything-factlog-list ()
+  (interactive)
+  (anything :sources '(anything-c-source-factlog-list)
+            :buffer "*anything factlog list*"))
 
 (provide 'factlog)
 
