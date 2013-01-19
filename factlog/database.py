@@ -1,4 +1,5 @@
 import os
+import itertools
 import sqlite3
 from contextlib import closing
 
@@ -61,14 +62,24 @@ class DataBase(object):
         columns = 'file_path'
         if unique:
             columns = 'DISTINCT ' + columns
+        if activity_types is not None:
+            where = ' WHERE activity_type in ({0}) '.format(
+                ', '.join(itertools.islice(itertools.repeat('?'),
+                                           len(activity_types))))
+        else:
+            where = ''
         sql = (
-            'SELECT {0} FROM file_log ORDER BY recorded DESC LIMIT ?'
-        ).format(columns)
+            'SELECT {0} FROM file_log {1}'
+            'ORDER BY recorded DESC '
+            'LIMIT ?'
+        ).format(columns, where)
         return sql
 
     @staticmethod
     def _params_list_file_path(limit, activity_types, unique):
-        return [limit]
+        if activity_types is None:
+            activity_types = []
+        return activity_types + [limit]
 
     def list_file_path(self, limit, activity_types=None, unique=True):
         """

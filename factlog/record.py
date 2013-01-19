@@ -35,18 +35,26 @@ def interleave(*iters):
 def list_add_arguments(parser):
     import argparse
     parser.add_argument('--limit', type=int, default=20)
+    parser.add_argument(
+        '--activity-type', '-a', dest='activity_types',
+        action='append', choices=DataBase.ACTIVITY_TYPES,
+        help="""
+        Activity types to include.
+        This option can be called multiple times.
+        Default is to include all activities.
+        """)
     parser.add_argument('--output', default='-', type=argparse.FileType('w'),
                         help='file to write output. "-" means stdout.')
 
 
-def list_run(limit, output):
+def list_run(limit, activity_types, output):
     """
     List recently accessed files.
     """
     separator = '\n'
     db = get_db()
     paths = db.list_file_path(
-        limit)
+        limit, activity_types)
     output.writelines(interleave(paths, itertools.repeat(separator)))
     output.write(separator)
     if output is not sys.stdout:
