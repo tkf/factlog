@@ -19,7 +19,8 @@ def record_run(file_path, file_point, activity_type):
     Record activities on file.
     """
     db = get_db()
-    db.record_file_log(file_path, file_point, activity_type)
+    db.record_file_log(
+        file_path, file_point=file_point, activity_type=activity_type)
 
 
 def list_add_arguments(parser):
