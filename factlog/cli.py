@@ -6,8 +6,7 @@ import argparse
 import textwrap
 
 
-class Formatter(argparse.RawTextHelpFormatter,
-                argparse.RawDescriptionHelpFormatter,
+class Formatter(argparse.RawDescriptionHelpFormatter,
                 argparse.ArgumentDefaultsHelpFormatter):
     pass
 
