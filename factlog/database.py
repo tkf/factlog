@@ -5,6 +5,8 @@ from contextlib import closing
 
 class DataBase(object):
 
+    ACTIVITY_TYPES = ('write', 'open', 'close')
+
     schemapath = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), 'schema.sql')
 
@@ -40,7 +42,7 @@ class DataBase(object):
         :arg  activity_type: one of 'write', 'open', 'close'
 
         """
-        assert activity_type in ('write', 'open', 'close')
+        assert activity_type in self.ACTIVITY_TYPES
         with closing(self._get_db()) as db:
             db.execute(
                 """
