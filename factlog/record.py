@@ -60,11 +60,82 @@ def list_add_arguments(parser):
         Default is to include all activities.
         """)
     parser.add_argument(
+        '--no-unique', dest='unique', action='store_false', default=True,
+        help="""
+        [WORK IN PROGRESS]
+        Include all duplicates.
+        """)
+    parser.add_argument(
+        '--include-glob', metavar='GLOB', default=[], action='append',
+        help="""
+        [WORK IN PROGRESS]
+        Include only paths that match to unix-style GLOB pattern.
+        """)
+    parser.add_argument(
+        '--exclude-glob', metavar='GLOB', default=[], action='append',
+        help="""
+        [WORK IN PROGRESS]
+        Exclude paths that match to unix-style GLOB pattern.
+        """)
+    parser.add_argument(
+        '--format',
+        help="""
+        [WORK IN PROGRESS]
+        Python-style string format.  {path}: file path; {point}:
+        cursor point; {recorded}: timestamp; {activity}: one of
+        'open', 'write' and 'close'; {id}: row id.
+        """)
+    parser.add_argument(
+        '--title',
+        help="""
+        [WORK IN PROGRESS]
+        Output title of the file.  Supported file formats are:
+        Python, reStructuredText, Markdown, Org-mode.
+        It does not work with --line-number.
+        """)
+    parser.add_argument(
+        '--line-number', action='store_true',
+        help="""
+        [WORK IN PROGRESS]
+        Output the line of the file where the cursor located
+        at the time of the action.
+        Prefix each output line with the 1-based line number,
+        like grep's --line-number.
+        """)
+    parser.add_argument(
+        '--after-context', '-A', type=int, metavar='NUM',
+        help="""
+        [WORK IN PROGRESS]
+        Print NUM lines after the cursor line.
+        It requires --line-number.
+        """)
+    parser.add_argument(
+        '--before-context', '-B', type=int, metavar='NUM',
+        help="""
+        [WORK IN PROGRESS]
+        Print NUM lines before the cursor line.
+        It requires --line-number.
+        """)
+    parser.add_argument(
+        '--context', '-C', type=int, metavar='NUM',
+        help="""
+        [WORK IN PROGRESS]
+        Print NUM lines before and after the cursor line.
+        It requires --line-number.
+        """)
+    parser.add_argument(
+        '--null', action='store_true',
+        help="""
+        [WORK IN PROGRESS]
+        Use the NULL character instead of newline for separating
+        files.
+        """)
+    parser.add_argument(
         '--output', default='-', type=argparse.FileType('w'),
         help='file to write output. "-" means stdout.')
 
 
-def list_run(limit, activity_types, output):
+def list_run(limit, activity_types, output, **_):
     """
     List recently accessed files.
     """

@@ -61,6 +61,7 @@ class DataBase(object):
     def _script_list_file_path(limit, activity_types, unique):
         columns = 'file_path'
         if unique:
+            # FIXME: make sure that the selected row is the most recent one
             columns = 'DISTINCT ' + columns
         if activity_types is None:
             where = ''
