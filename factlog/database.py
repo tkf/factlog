@@ -46,6 +46,11 @@ class DataBase(object):
         to the database.
 
         """
+        # FIXME: Record file existence.  If it does not exist when
+        #        opened and it does after the next save, it means that
+        #        the file is created at that time.
+        # FIXME: Add more activities (if possible):
+        #        create/delete/move/copy
         assert activity_type in self.ACTIVITY_TYPES
         file_path = os.path.abspath(file_path)
         with closing(self._get_db()) as db:
