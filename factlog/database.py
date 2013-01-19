@@ -46,7 +46,7 @@ class DataBase(object):
         with closing(self._get_db()) as db:
             db.execute(
                 """
-                insert into system_info (file_path, file_point, activity_type)
+                insert into file_log (file_path, file_point, activity_type)
                 values (?, ?, ?)
                 """,
                 [file_path, file_point, activity_type])
