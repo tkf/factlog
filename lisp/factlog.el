@@ -58,8 +58,10 @@
 (defun factlog:record-current-file (activity-type)
   (when (and buffer-file-name (recentf-include-p buffer-file-name)) ; [1]_
     (factlog:deferred-process
-     "record" "--file-point" (format "%s" (point)) buffer-file-name
-     "--activity-type" activity-type)))
+     "record"
+     "--file-point" (format "%s" (point))
+     "--activity-type" activity-type
+     buffer-file-name)))
 ;; .. [1] (recentf-include-p nil) returns t.
 ;;        So, let's check if it is non-nil first.
 
