@@ -27,7 +27,7 @@ class DataBase(object):
             with open(self.schemapath) as f:
                 db.cursor().executescript(f.read())
             db.execute(
-                'insert into system_info (version) values (?)',
+                'INSERT INTO system_info (version) VALUES (?)',
                 [version])
             db.commit()
 
@@ -51,8 +51,8 @@ class DataBase(object):
         with closing(self._get_db()) as db:
             db.execute(
                 """
-                insert into file_log (file_path, file_point, activity_type)
-                values (?, ?, ?)
+                INSERT INTO file_log (file_path, file_point, activity_type)
+                VALUES (?, ?, ?)
                 """,
                 [file_path, file_point, activity_type])
             db.commit()
