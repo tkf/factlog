@@ -42,7 +42,9 @@ def interleave(*iteratives):
 
 def list_add_arguments(parser):
     import argparse
-    parser.add_argument('--limit', type=int, default=20)
+    parser.add_argument(
+        '--limit', type=int, default=20,
+        help="Maximum number of files to list.")
     parser.add_argument(
         '--activity-type', '-a', dest='activity_types',
         action='append', choices=DataBase.ACTIVITY_TYPES,
@@ -51,8 +53,9 @@ def list_add_arguments(parser):
         This option can be called multiple times.
         Default is to include all activities.
         """)
-    parser.add_argument('--output', default='-', type=argparse.FileType('w'),
-                        help='file to write output. "-" means stdout.')
+    parser.add_argument(
+        '--output', default='-', type=argparse.FileType('w'),
+        help='file to write output. "-" means stdout.')
 
 
 def list_run(limit, activity_types, output):
