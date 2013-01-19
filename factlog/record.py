@@ -11,10 +11,16 @@ def get_db(*args, **kwds):
 
 
 def record_add_arguments(parser):
-    parser.add_argument('file_path')
-    parser.add_argument('--activity-type', default='write',
-                        choices=DataBase.ACTIVITY_TYPES)
-    parser.add_argument('--file-point', type=int)
+    parser.add_argument(
+        'file_path',
+        help="record an activity on this file.")
+    parser.add_argument(
+        '--activity-type', '-a', default='write',
+        choices=DataBase.ACTIVITY_TYPES,
+        help="activity on the file to record.")
+    parser.add_argument(
+        '--file-point', type=int,
+        help="point of cursor at the time of saving.")
 
 
 def record_run(file_path, file_point, activity_type):
@@ -43,7 +49,7 @@ def interleave(*iteratives):
 def list_add_arguments(parser):
     import argparse
     parser.add_argument(
-        '--limit', type=int, default=20,
+        '--limit', '-l', type=int, default=20,
         help="Maximum number of files to list.")
     parser.add_argument(
         '--activity-type', '-a', dest='activity_types',
