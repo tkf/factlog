@@ -56,14 +56,25 @@ class DataBase(object):
                 [file_path, file_point, activity_type])
             db.commit()
 
-    def list_file_path(self, limit, activity_types=None):
+    @staticmethod
+    def _script_list_file_path(limit, activity_types, unique):
+        columns = 'file_path'
+        if unique:
+            columns = 'DISTINCT ' + columns
+        sql = (
+            'SELECT {0} FROM file_log ORDER BY recorded DESC LIMIT ?'
+        ).format(columns)
+        return sql
+
+    @staticmethod
+    def _params_list_file_path(limit, activity_types, unique):
+        return [limit]
+
+    def list_file_path(self, limit, activity_types=None, unique=True):
+        args = (limit, activity_types, unique)
         with closing(self._get_db()) as db:
             cursor = db.execute(
-                """
-                SELECT file_path FROM file_log
-                ORDER BY recorded DESC
-                LIMIT ?
-                """,
-                [limit])
+                self._script_list_file_path(*args),
+                self._params_list_file_path(*args))
             for (file_path,) in cursor:
                 yield file_path
