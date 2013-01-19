@@ -26,7 +26,36 @@
 
 ;;; Code:
 
+(require 'recentf)
+(require 'deferred)
 
+(defgroup factlog nil
+  "File activity logger."
+  :group 'convenience
+  :prefix "factlog:")
+
+(defvar factlog:lisp-dir (if load-file-name
+                             (file-name-directory load-file-name)
+                           default-directory))
+
+(defvar factlog:source-dir (file-name-nondirectory factlog:lisp-dir))
+
+(defvar factlog:cli-script
+  (convert-standard-filename
+   (expand-file-name "factlog/cli.py" factlog:source-dir))
+  "Full path to FactLog CLI script.")
+
+(defcustom factlog:command
+  (list "python" factlog:cli-script)
+  :group 'factlog)
+
+(defun factlog:deferred-process (&rest args)
+  (apply #'deferred:process factlog:command args))
+
+(defun factlog:after-save-handler ()
+  (when (recentf-include-p buffer-file-name)
+    (factlog:deferred-process
+     "record" "--file-point" (point) buffer-file-name)))
 
 (provide 'factlog)
 
