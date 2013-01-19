@@ -41,8 +41,12 @@ class DataBase(object):
         :type activity_type: str
         :arg  activity_type: one of 'write', 'open', 'close'
 
+        `file_path` is converted to absolute path before saving
+        to the database.
+
         """
         assert activity_type in self.ACTIVITY_TYPES
+        file_path = os.path.abspath(file_path)
         with closing(self._get_db()) as db:
             db.execute(
                 """
