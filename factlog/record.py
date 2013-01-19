@@ -26,7 +26,15 @@ def record_run(file_path, file_point, activity_type):
         file_path, file_point=file_point, activity_type=activity_type)
 
 
-def interleave(*iters):
+def interleave(*iteratives):
+    """
+    Return an iterator that interleave elements from given `iteratives`.
+
+    >>> list(interleave([1, 2, 3], itertools.repeat(None)))
+    [1, None, 2, None, 3, None]
+
+    """
+    iters = map(iter, iteratives)
     while True:
         for it in iters:
             yield next(it)
@@ -56,7 +64,6 @@ def list_run(limit, activity_types, output):
     paths = db.list_file_path(
         limit, activity_types)
     output.writelines(interleave(paths, itertools.repeat(separator)))
-    output.write(separator)
     if output is not sys.stdout:
         output.close()
 
