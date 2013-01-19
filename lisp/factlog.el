@@ -40,7 +40,7 @@
 
 (defvar factlog:source-dir (expand-file-name
                             ".."
-                            (file-name-nondirectory factlog:lisp-dir)))
+                            (file-name-directory factlog:lisp-dir)))
 
 (defvar factlog:cli-script
   (convert-standard-filename
