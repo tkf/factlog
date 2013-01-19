@@ -21,6 +21,11 @@ def get_config_directory(appname):
 
 
 class ConfigStore(object):
+
     base_path = get_config_directory('FactLog')
     data_path = os.path.join(base_path, 'data')
     db_path = os.path.join(data_path, 'db.sqlite')
+
+    def __init__(self):
+        if not os.path.exists(self.data_path):
+            os.makedirs(self.data_path)
