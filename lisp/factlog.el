@@ -55,10 +55,17 @@
 (defun factlog:deferred-process (&rest args)
   (apply #'deferred:process (append factlog:command args)))
 
-(defun factlog:after-save-handler ()
+(defun factlog:record-current-file (activity-type)
   (when (recentf-include-p buffer-file-name)
     (factlog:deferred-process
-     "record" "--file-point" (format "%s" (point)) buffer-file-name)))
+     "record" "--file-point" (format "%s" (point)) buffer-file-name
+     "--activity-type" activity-type)))
+
+(defun factlog:after-save-handler ()
+  (factlog:record-current-file "write"))
+
+(defun factlog:find-file-handler ()
+  (factlog:record-current-file "open"))
 
 (define-minor-mode factlog-mode
   "FactLog mode -- file activity logger.
@@ -68,7 +75,10 @@
   :global t
   :group 'factlog
   (if factlog-mode
-      (add-hook 'after-save-hook 'factlog:after-save-handler)
+      (progn
+        (add-hook 'find-file-hook 'factlog:find-file-handler)
+        (add-hook 'after-save-hook 'factlog:after-save-handler))
+    (remove-hook 'find-file-hook 'factlog:find-file-handler)
     (remove-hook 'after-save-hook 'factlog:after-save-handler)))
 
 (provide 'factlog)
