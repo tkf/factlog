@@ -60,6 +60,17 @@
     (factlog:deferred-process
      "record" "--file-point" (format "%s" (point)) buffer-file-name)))
 
+(define-minor-mode factlog-mode
+  "FactLog mode -- file activity logger.
+
+\\{factlog-mode-map}"
+  ;; :keymap factlog-mode-map
+  :global t
+  :group 'factlog
+  (if factlog-mode
+      (add-hook 'after-save-hook 'factlog:after-save-handler)
+    (remove-hook 'after-save-hook 'factlog:after-save-handler)))
+
 (provide 'factlog)
 
 ;;; factlog.el ends here
