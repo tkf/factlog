@@ -67,6 +67,9 @@
 (defun factlog:find-file-handler ()
   (factlog:record-current-file "open"))
 
+(defun factlog:kill-buffer-handler ()
+  (factlog:record-current-file "close"))
+
 (define-minor-mode factlog-mode
   "FactLog mode -- file activity logger.
 
@@ -77,9 +80,11 @@
   (if factlog-mode
       (progn
         (add-hook 'find-file-hook 'factlog:find-file-handler)
-        (add-hook 'after-save-hook 'factlog:after-save-handler))
+        (add-hook 'after-save-hook 'factlog:after-save-handler)
+        (add-hook 'kill-buffer-hook 'factlog:kill-buffer-handler))
     (remove-hook 'find-file-hook 'factlog:find-file-handler)
-    (remove-hook 'after-save-hook 'factlog:after-save-handler)))
+    (remove-hook 'after-save-hook 'factlog:after-save-handler)
+    (remove-hook 'kill-buffer-hook 'factlog:kill-buffer-handler)))
 
 (provide 'factlog)
 
