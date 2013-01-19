@@ -62,12 +62,12 @@ class DataBase(object):
         columns = 'file_path'
         if unique:
             columns = 'DISTINCT ' + columns
-        if activity_types is not None:
+        if activity_types is None:
+            where = ''
+        else:
             where = ' WHERE activity_type in ({0}) '.format(
                 ', '.join(itertools.islice(itertools.repeat('?'),
                                            len(activity_types))))
-        else:
-            where = ''
         sql = (
             'SELECT {0} FROM file_log {1}'
             'ORDER BY recorded DESC '
