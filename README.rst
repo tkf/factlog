@@ -40,3 +40,4 @@ More to come
 - Understand "project" (VCS repository).
 - Concurrent grep.
 - Extract file title.
+- Extract URLs in the documents and use them as URL bookmark.
