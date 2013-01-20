@@ -78,6 +78,18 @@ def list_add_arguments(parser):
         Exclude paths that match to unix-style GLOB pattern.
         """)
     parser.add_argument(
+        '--under', metavar='PATH', default=[], action='append',
+        help="""
+        [WORK IN PROGRESS]
+        Show only paths under PATH.  See also: --relative.
+        """)
+    parser.add_argument(
+        '--relative', action='store_true',
+        help="""
+        [WORK IN PROGRESS]
+        Output paths relative to the one given by --under.
+        """)
+    parser.add_argument(
         '--format',
         help="""
         [WORK IN PROGRESS]
