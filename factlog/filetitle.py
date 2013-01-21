@@ -93,3 +93,31 @@ def get_title(path):
     func = dispatcher.get(ext)
     if func:
         return func(path)
+
+
+def write_paths_and_titles(file, paths, separator=':', newline='\n'):
+    for path in paths:
+        file.write(path)
+        title = get_title(path)
+        if title:
+            file.write(separator)
+            file.write(title)
+        file.write(newline)
+
+
+def main(args=None):
+    import argparse
+    parser = argparse.ArgumentParser(
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        description=__doc__)
+    parser.add_argument(
+        'path', nargs='+')
+    parser.add_argument(
+        '--output', default='-', type=argparse.FileType('w'),
+        help='file to write output. "-" means stdout.')
+    ns = parser.parse_args(args)
+    write_paths_and_titles(ns.output, ns.path)
+
+
+if __name__ == '__main__':
+    main()
