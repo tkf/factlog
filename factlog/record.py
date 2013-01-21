@@ -1,3 +1,4 @@
+import os
 import sys
 import itertools
 
@@ -78,7 +79,6 @@ def list_add_arguments(parser):
     parser.add_argument(
         '--under', metavar='PATH', default=[], action='append',
         help="""
-        [WORK IN PROGRESS]
         Show only paths under PATH.  See also: --relative.
         """)
     parser.add_argument(
@@ -147,11 +147,12 @@ def list_add_arguments(parser):
 
 def list_run(
         limit, activity_types, output, unique, include_glob, exclude_glob,
-        **_):
+        under, **_):
     """
     List recently accessed files.
     """
     separator = '\n'
+    include_glob += [os.path.join(os.path.abspath(p), "*") for p in under]
     db = get_db()
     paths = db.list_file_path(
         limit, activity_types, unique, include_glob, exclude_glob)
