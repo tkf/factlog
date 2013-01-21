@@ -98,6 +98,18 @@ def get_title(path):
 
 
 def write_paths_and_titles(file, paths, separator=':', newline='\n'):
+    """
+    Write path in `paths` to `file` with its title if found.
+
+    Following line is written in `file` for each path in `paths`::
+
+      {path}{separator}{title}{newline}
+
+    Example line::
+
+        mynote/2013/01/note.rst:Title of my note
+
+    """
     for path in paths:
         file.write(path)
         title = get_title(path)
