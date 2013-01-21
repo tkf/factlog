@@ -28,7 +28,7 @@ care about in which branch I opened the file."::
 "The files I touched are huge.  I want to search only the locations
 I touched."::
 
-   factlog list -C 50 | xargs grep 'def record'
+   factlog list -C 50 | grep 'def record'
 
 
 More to come
