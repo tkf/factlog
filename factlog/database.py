@@ -8,6 +8,17 @@ def repeat(item, num):
     return itertools.islice(itertools.repeat(item), num)
 
 
+def concat_expr(operator, conditions):
+    """
+    Concatenate `conditions` with `operator` and wrap it by ().
+
+    It returns a string in a list or empty list, if `conditions` is empty.
+
+    """
+    expr = " {0} ".format(operator).join(conditions)
+    return ["({0})".format(expr)] if expr else []
+
+
 class DataBase(object):
 
     ACTIVITY_TYPES = ('write', 'open', 'close')
@@ -81,9 +92,8 @@ class DataBase(object):
                 ', '.join(repeat('?', len(activity_types)))))
             params.extend(activity_types)
 
-        conditions.append(
-            "({0})".format(" OR ".join(
-                repeat('glob(?, file_path)', len(include_glob)))))
+        conditions.extend(concat_expr(
+            'OR', repeat('glob(?, file_path)', len(include_glob))))
         conditions.extend(repeat('NOT glob(?, file_path)', len(exclude_glob)))
         params.extend(include_glob)
         params.extend(exclude_glob)
