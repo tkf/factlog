@@ -8,8 +8,8 @@ create table file_log (
   activity_type string not null
 );
 
-drop table if exists system_info;
-create table system_info (
+drop table if exists factlog_info;
+create table factlog_info (
   factlog_version string not null,
   schema_version string not null,
   updated timestamp default current_timestamp
