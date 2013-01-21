@@ -4,6 +4,7 @@ File title extractor.
 
 import os
 import re
+import ast
 from itertools import imap, ifilter, izip, tee
 
 
@@ -76,10 +77,25 @@ def get_title_org(path):
         [iparse_asterisk_headings])
 
 
+def get_title_py(path):
+    # FIXME: Find more quick way to get file title of Python file.
+    # Parsing python file using ast module can be pretty slow because
+    # it parses entire file.
+    with open(path) as f:
+        node = ast.parse(f.read())
+    doc = ast.get_docstring(node)
+    if doc is None:
+        return None
+    for line in doc.splitlines():
+        if line:
+            return line
+
+
 exts_func = [
     (('rst', 'rest'), get_title_rst),
     (('md', 'markdown'), get_title_md),
     (('org',), get_title_org),
+    (('py',), get_title_py),
 ]
 
 dispatcher = dict((ext, func) for (exts, func) in exts_func for ext in exts)
