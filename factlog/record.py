@@ -96,9 +96,8 @@ def list_add_arguments(parser):
         'open', 'write' and 'close'; {id}: row id.
         """)
     parser.add_argument(
-        '--title',
+        '--title', action='store_true',
         help="""
-        [WORK IN PROGRESS]
         Output title of the file.  Supported file formats are:
         Python, reStructuredText, Markdown, Org-mode.
         It does not work with --line-number.
@@ -147,7 +146,7 @@ def list_add_arguments(parser):
 
 def list_run(
         limit, activity_types, output, unique, include_glob, exclude_glob,
-        under, **_):
+        under, title, **_):
     """
     List recently accessed files.
     """
@@ -156,7 +155,11 @@ def list_run(
     db = get_db()
     paths = db.list_file_path(
         limit, activity_types, unique, include_glob, exclude_glob)
-    output.writelines(interleave(paths, itertools.repeat(separator)))
+    if title:
+        from .filetitle import write_paths_and_titles
+        write_paths_and_titles(output, paths, newline=separator)
+    else:
+        output.writelines(interleave(paths, itertools.repeat(separator)))
     if output is not sys.stdout:
         output.close()
 

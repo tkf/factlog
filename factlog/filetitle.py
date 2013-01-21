@@ -89,6 +89,8 @@ def get_title(path):
     """
     Get title of the document at `path` or None if cannot be retrieved.
     """
+    if not os.path.exists(path):
+        return None
     ext = os.path.splitext(path)[1].lower()[1:]
     func = dispatcher.get(ext)
     if func:
