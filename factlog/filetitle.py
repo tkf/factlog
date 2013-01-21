@@ -113,7 +113,8 @@ def get_title(path):
         return func(path)
 
 
-def write_paths_and_titles(file, paths, separator=':', newline='\n'):
+def write_paths_and_titles(
+        file, paths, showpaths=None, newline='\n', separator=':'):
     """
     Write path in `paths` to `file` with its title if found.
 
@@ -126,8 +127,10 @@ def write_paths_and_titles(file, paths, separator=':', newline='\n'):
         mynote/2013/01/note.rst:Title of my note
 
     """
-    for path in paths:
-        file.write(path)
+    if showpaths is None:
+        showpaths = paths
+    for (path, show) in zip(paths, showpaths):
+        file.write(show)
         title = get_title(path)
         if title:
             file.write(separator)

@@ -14,14 +14,12 @@ Rich command line interface.  Useful for unix style searching::
   factlog list --include-glob '*.py'
 
 
-**WORK IN PROGRESS**
 "I want to list files in this particular project I touched.  I don't
 care about in which branch I opened the file."::
 
   factlog list --under BRANCH-A --under BRANCH-B --relative
 
 
-**WORK IN PROGRESS**
 "I want to see last 50 notes I took with title"::
 
   factlog list --under MY-NOTE-DIRECTORY --relative --title --limit 50

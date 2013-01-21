@@ -47,6 +47,16 @@ def interleave(*iteratives):
             yield next(it)
 
 
+def remove_prefix(prefixes, string):
+    """
+    Remove prefix of string if one of the candidate in `prefixes` matches.
+    """
+    for pre in prefixes:
+        if string.startswith(pre):
+            return string[len(pre):]
+    return string
+
+
 def list_add_arguments(parser):
     import argparse
     parser.add_argument(
@@ -84,7 +94,6 @@ def list_add_arguments(parser):
     parser.add_argument(
         '--relative', action='store_true',
         help="""
-        [WORK IN PROGRESS]
         Output paths relative to the one given by --under.
         """)
     parser.add_argument(
@@ -146,18 +155,21 @@ def list_add_arguments(parser):
 
 def list_run(
         limit, activity_types, output, unique, include_glob, exclude_glob,
-        under, title, **_):
+        under, relative, title, **_):
     """
     List recently accessed files.
     """
     separator = '\n'
-    include_glob += [os.path.join(os.path.abspath(p), "*") for p in under]
+    absunder = list(map(os.path.abspath, under))
+    include_glob += [os.path.join(p, "*") for p in absunder]
     db = get_db()
-    paths = db.list_file_path(
-        limit, activity_types, unique, include_glob, exclude_glob)
+    paths = showpaths = list(db.list_file_path(
+        limit, activity_types, unique, include_glob, exclude_glob))
+    if relative:
+        showpaths = [remove_prefix(absunder, p) for p in paths]
     if title:
         from .filetitle import write_paths_and_titles
-        write_paths_and_titles(output, paths, newline=separator)
+        write_paths_and_titles(output, paths, showpaths, separator)
     else:
         output.writelines(interleave(paths, itertools.repeat(separator)))
     if output is not sys.stdout:
