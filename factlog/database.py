@@ -6,6 +6,8 @@ from contextlib import closing
 from .utils.iterutils import repeat, uniq
 from .accessinfo import AccessInfo
 
+schema_version = '0.1.dev1'
+
 
 def concat_expr(operator, conditions):
     """
