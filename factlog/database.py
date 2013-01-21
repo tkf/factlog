@@ -88,7 +88,7 @@ class DataBase(object):
             # FIXME: make sure that the selected row is the most recent one
             columns = 'DISTINCT ' + columns
         if activity_types is not None:
-            conditions.append('activity_type in ({0}) '.format(
+            conditions.append('activity_type in ({0})'.format(
                 ', '.join(repeat('?', len(activity_types)))))
             params.extend(activity_types)
 
@@ -99,7 +99,7 @@ class DataBase(object):
         params.extend(exclude_glob)
 
         if conditions:
-            where = ' WHERE {0}'.format(" AND ".join(conditions))
+            where = ' WHERE {0} '.format(" AND ".join(conditions))
         else:
             where = ''
         sql = (
