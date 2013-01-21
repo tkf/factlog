@@ -4,6 +4,7 @@ create table access_log (
   file_path string not null,
   file_point integer,
   file_exists integer not null default 1,
+  program string,
   recorded timestamp default current_timestamp,
   access_type string not null
 );
