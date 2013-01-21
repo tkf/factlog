@@ -81,7 +81,9 @@ class DataBase(object):
                 ', '.join(repeat('?', len(activity_types)))))
             params.extend(activity_types)
 
-        conditions.extend(repeat('glob(?, file_path)', len(include_glob)))
+        conditions.append(
+            "({0})".format(" OR ".join(
+                repeat('glob(?, file_path)', len(include_glob)))))
         conditions.extend(repeat('NOT glob(?, file_path)', len(exclude_glob)))
         params.extend(include_glob)
         params.extend(exclude_glob)
