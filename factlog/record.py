@@ -166,6 +166,7 @@ def list_run(
         limit, activity_types, unique, include_glob, exclude_glob))
     if relative:
         showpaths = [remove_prefix(absunder, p) for p in paths]
+        (showpaths, paths) = zip(*list(dict(zip(showpaths, paths)).items()))
     if title:
         from .filetitle import write_paths_and_titles
         write_paths_and_titles(output, paths, showpaths, separator)
