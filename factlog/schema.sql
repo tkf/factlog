@@ -1,11 +1,11 @@
-drop table if exists file_log;
-create table file_log (
+drop table if exists access_log;
+create table access_log (
   id integer primary key autoincrement,
   file_path string not null,
   file_point integer,
   file_exists integer not null default 1,
   recorded timestamp default current_timestamp,
-  activity_type string not null
+  access_type string not null
 );
 
 drop table if exists factlog_info;
