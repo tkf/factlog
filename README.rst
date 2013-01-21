@@ -14,17 +14,20 @@ Rich command line interface.  Useful for unix style searching::
   factlog list --include-glob '*.py'
 
 
+**WORK IN PROGRESS**
 "I want to list files in this particular project I touched.  I don't
 care about in which branch I opened the file."::
 
   factlog list --under BRANCH-A --under BRANCH-B --relative
 
 
+**WORK IN PROGRESS**
 "I want to see last 50 notes I took with title"::
 
   factlog list --under MY-NOTE-DIRECTORY --relative --title --limit 50
 
 
+**WORK IN PROGRESS**
 "The files I touched are huge.  I want to search only the locations
 I touched."::
 
@@ -39,5 +42,4 @@ More to come
   write to the file, how recent you visited the file, etc.
 - Understand "project" (VCS repository).
 - Concurrent grep.
-- Extract file title.
 - Extract URLs in the documents and use them as URL bookmark.
