@@ -64,6 +64,7 @@ class DataBase(object):
 
     @staticmethod
     def _script_list_file_path(limit, activity_types, unique):
+        params = []
         columns = 'file_path'
         if unique:
             # FIXME: make sure that the selected row is the most recent one
@@ -74,18 +75,14 @@ class DataBase(object):
             where = ' WHERE activity_type in ({0}) '.format(
                 ', '.join(itertools.islice(itertools.repeat('?'),
                                            len(activity_types))))
+            params.extend(activity_types)
         sql = (
             'SELECT {0} FROM file_log {1}'
             'ORDER BY recorded DESC '
             'LIMIT ?'
         ).format(columns, where)
-        return sql
-
-    @staticmethod
-    def _params_list_file_path(limit, activity_types, unique):
-        if activity_types is None:
-            activity_types = []
-        return activity_types + [limit]
+        params.append(limit)
+        return (sql, params)
 
     def list_file_path(self, limit, activity_types=None, unique=True):
         """
@@ -99,10 +96,8 @@ class DataBase(object):
         :arg          unique: if true (default), strip off duplications
 
         """
-        args = (limit, activity_types, unique)
         with closing(self._get_db()) as db:
-            cursor = db.execute(
-                self._script_list_file_path(*args),
-                self._params_list_file_path(*args))
+            cursor = db.execute(*self._script_list_file_path(
+                limit, activity_types, unique))
             for (file_path,) in cursor:
                 yield file_path
