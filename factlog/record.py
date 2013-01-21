@@ -68,13 +68,11 @@ def list_add_arguments(parser):
     parser.add_argument(
         '--include-glob', metavar='GLOB', default=[], action='append',
         help="""
-        [WORK IN PROGRESS]
         Include only paths that match to unix-style GLOB pattern.
         """)
     parser.add_argument(
         '--exclude-glob', metavar='GLOB', default=[], action='append',
         help="""
-        [WORK IN PROGRESS]
         Exclude paths that match to unix-style GLOB pattern.
         """)
     parser.add_argument(
@@ -147,14 +145,16 @@ def list_add_arguments(parser):
         help='file to write output. "-" means stdout.')
 
 
-def list_run(limit, activity_types, output, **_):
+def list_run(
+        limit, activity_types, output, unique, include_glob, exclude_glob,
+        **_):
     """
     List recently accessed files.
     """
     separator = '\n'
     db = get_db()
     paths = db.list_file_path(
-        limit, activity_types)
+        limit, activity_types, unique, include_glob, exclude_glob)
     output.writelines(interleave(paths, itertools.repeat(separator)))
     if output is not sys.stdout:
         output.close()

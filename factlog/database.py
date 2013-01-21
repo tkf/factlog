@@ -4,6 +4,10 @@ import sqlite3
 from contextlib import closing
 
 
+def repeat(item, num):
+    return itertools.islice(itertools.repeat(item), num)
+
+
 class DataBase(object):
 
     ACTIVITY_TYPES = ('write', 'open', 'close')
@@ -63,19 +67,29 @@ class DataBase(object):
             db.commit()
 
     @staticmethod
-    def _script_list_file_path(limit, activity_types, unique):
+    def _script_list_file_path(
+            limit, activity_types, unique, include_glob, exclude_glob):
+        # FIXME: support `unique` (currently ignored)
         params = []
         columns = 'file_path'
+        conditions = []
         if unique:
             # FIXME: make sure that the selected row is the most recent one
             columns = 'DISTINCT ' + columns
-        if activity_types is None:
-            where = ''
-        else:
-            where = ' WHERE activity_type in ({0}) '.format(
-                ', '.join(itertools.islice(itertools.repeat('?'),
-                                           len(activity_types))))
+        if activity_types is not None:
+            conditions.append('activity_type in ({0}) '.format(
+                ', '.join(repeat('?', len(activity_types)))))
             params.extend(activity_types)
+
+        conditions.extend(repeat('glob(?, file_path)', len(include_glob)))
+        conditions.extend(repeat('NOT glob(?, file_path)', len(exclude_glob)))
+        params.extend(include_glob)
+        params.extend(exclude_glob)
+
+        if conditions:
+            where = ' WHERE {0}'.format(" AND ".join(conditions))
+        else:
+            where = ''
         sql = (
             'SELECT {0} FROM file_log {1}'
             'ORDER BY recorded DESC '
@@ -84,7 +98,9 @@ class DataBase(object):
         params.append(limit)
         return (sql, params)
 
-    def list_file_path(self, limit, activity_types=None, unique=True):
+    def list_file_path(
+            self, limit, activity_types=None, unique=True,
+            include_glob=[], exclude_glob=[]):
         """
         Return an iterator which yields file paths.
 
@@ -94,10 +110,14 @@ class DataBase(object):
         :arg  activity_types: subset of :attr:`ACTIVITY_TYPES`
         :type         unique: bool
         :arg          unique: if true (default), strip off duplications
+        :type   include_glob: list
+        :arg    include_glob: a list of glob expression
+        :type   exclude_glob: list
+        :arg    exclude_glob: a list of glob expression
 
         """
         with closing(self._get_db()) as db:
             cursor = db.execute(*self._script_list_file_path(
-                limit, activity_types, unique))
+                limit, activity_types, unique, include_glob, exclude_glob))
             for (file_path,) in cursor:
                 yield file_path
