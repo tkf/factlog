@@ -144,7 +144,6 @@ def list_add_arguments(parser):
     parser.add_argument(
         '--null', action='store_true',
         help="""
-        [WORK IN PROGRESS]
         Use the NULL character instead of newline for separating
         files.
         """)
@@ -155,11 +154,11 @@ def list_add_arguments(parser):
 
 def list_run(
         limit, activity_types, output, unique, include_glob, exclude_glob,
-        under, relative, title, **_):
+        under, relative, title, null, **_):
     """
     List recently accessed files.
     """
-    separator = '\n'
+    separator = '\0' if null else '\n'
     absunder = [os.path.join(os.path.abspath(p), "") for p in under]
     include_glob += [os.path.join(p, "*") for p in absunder]
     db = get_db()
