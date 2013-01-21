@@ -11,7 +11,7 @@ Rich command line interface.  Useful for unix style searching::
 
 "I want to see some Python files I edited recently"::
 
-  factlog list --include '*.py'
+  factlog list --include-glob '*.py'
 
 
 "I want to list files in this particular project I touched.  I don't
