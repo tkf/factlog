@@ -170,7 +170,7 @@ def list_run(
         from .filetitle import write_paths_and_titles
         write_paths_and_titles(output, paths, showpaths, separator)
     else:
-        output.writelines(interleave(paths, itertools.repeat(separator)))
+        output.writelines(interleave(showpaths, itertools.repeat(separator)))
     if output is not sys.stdout:
         output.close()
 
