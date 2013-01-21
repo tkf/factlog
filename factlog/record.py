@@ -160,7 +160,7 @@ def list_run(
     List recently accessed files.
     """
     separator = '\n'
-    absunder = list(map(os.path.abspath, under))
+    absunder = [os.path.join(os.path.abspath(p), "") for p in under]
     include_glob += [os.path.join(p, "*") for p in absunder]
     db = get_db()
     paths = showpaths = list(db.list_file_path(
