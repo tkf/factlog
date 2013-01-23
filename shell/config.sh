@@ -8,6 +8,12 @@ _factlog_record_wrapper(){
     local command="$1"
     local file="$2"
     local code
+    if [ "$#" = 1 ]
+    then
+        "$command"
+        code="$?"
+        return $code
+    fi
     shift 2
     if [ -e "$file" ]
     then
