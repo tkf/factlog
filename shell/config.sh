@@ -27,21 +27,5 @@ _factlog_record_wrapper(){
     fi
 }
 
-# Make wrapper for command using alias
-# Usage:
-#    _factlog_record_wrap_command COMMAND
-# It is roughly equivalent to:
-#    _factlog_record_orig_COMMAND=$(which COMMAND)
-#    alias COMMAND="_factlog_record_wrapper ${_factlog_record_orig_COMMAND}"
-_factlog_record_wrap_command(){
-    local command="$1"
-    local varname="_factlog_record_orig_${command}"
-    if eval "test -z \$$varname"
-    then
-        eval "${varname}=$(which $command)"
-        eval "alias ${command}=\"_factlog_record_wrapper \$${varname}\""
-    fi
-}
-
-_factlog_record_wrap_command less
-_factlog_record_wrap_command vim
+alias less="_factlog_record_wrapper \\less"
+alias vim="_factlog_record_wrapper \\vim"
