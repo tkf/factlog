@@ -7,10 +7,10 @@ def write_paths_and_lines(
     if showpaths is None:
         showpaths = paths
     for (path, point, show) in zip(paths, points, showpaths):
-        file.write(show)
         with open(path) as f:
             lines = get_lines_at_point(f.read(), point, pre_lines, post_lines)
         for (lineno, line) in lines:
+            file.write(show)
             file.write(separator)
             file.write(str(lineno))
             file.write(separator)

@@ -100,21 +100,18 @@ def list_add_arguments(parser):
     parser.add_argument(
         '--after-context', '-A', type=int, metavar='NUM',
         help="""
-        [WORK IN PROGRESS]
         Print NUM lines after the cursor line.
         It requires --line-number.
         """)
     parser.add_argument(
         '--before-context', '-B', type=int, metavar='NUM',
         help="""
-        [WORK IN PROGRESS]
         Print NUM lines before the cursor line.
         It requires --line-number.
         """)
     parser.add_argument(
         '--context', '-C', type=int, metavar='NUM',
         help="""
-        [WORK IN PROGRESS]
         Print NUM lines before and after the cursor line.
         It requires --line-number.
         """)
@@ -131,7 +128,8 @@ def list_add_arguments(parser):
 
 def list_run(
         limit, activity_types, output, unique, include_glob, exclude_glob,
-        under, relative, title, null, **_):
+        under, relative, title, null, before_context, after_context, context,
+        **_):
     """
     List recently accessed files.
     """
@@ -141,14 +139,22 @@ def list_run(
     db = get_db()
     rows = db.list_file_path(
         limit, activity_types, unique, include_glob, exclude_glob)
-    paths = filter(os.path.exists, (r.path for r in rows))
-    paths = showpaths = list(paths)
+    rows = (r for r in rows if os.path.exists(r.path))
+    rows = list(rows)           # FIXME: optimize!
+    paths = showpaths = [r.path for r in rows]
     if relative:
         showpaths = [remove_prefix(absunder, p) for p in paths]
         (showpaths, paths) = zip(*list(dict(zip(showpaths, paths)).items()))
     if title:
         from .filetitle import write_paths_and_titles
         write_paths_and_titles(output, paths, showpaths, separator)
+    elif before_context or after_context or context:
+        from .utils.fileutils import write_paths_and_lines
+        points = (r.point for r in rows)
+        pre_lines = context if before_context is None else before_context
+        post_lines = context if after_context is None else after_context
+        write_paths_and_lines(output, paths, points, showpaths, separator,
+                              pre_lines=pre_lines, post_lines=post_lines)
     else:
         output.writelines(interleave(showpaths, itertools.repeat(separator)))
     if output is not sys.stdout:

@@ -25,7 +25,6 @@ care about in which branch I opened the file."::
   factlog list --under MY-NOTE-DIRECTORY --relative --title --limit 50
 
 
-**WORK IN PROGRESS**
 "The files I touched are huge.  I want to search only the locations
 I touched."::
 
