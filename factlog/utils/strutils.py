@@ -1,3 +1,6 @@
+from string import count
+
+
 def remove_prefix(prefixes, string):
     """
     Remove prefix of string if one of the candidate in `prefixes` matches.
@@ -12,3 +15,42 @@ def remove_prefix(prefixes, string):
         if string.startswith(pre):
             return string[len(pre):]
     return string
+
+
+def get_lines_by_point(string, point, pre_lines=0, post_lines=0):
+    r"""
+    Get lines containing point.
+
+    :type      string: str
+    :arg       string: target string
+    :type       point: int
+    :arg        point: 1-origin index to specify a point
+    :type   pre_lines: int
+    :arg    pre_lines: number of previous lines to include (default: 0)
+    :type  post_lines: int
+    :arg   post_lines: number of post lines to include (default: 0)
+
+    :rtype: list of strings
+    :return: lines (newline at the end of lines are stripped off)
+
+    >>> string = '''\
+    ... 1
+    ... 3
+    ... 5
+    ... 7
+    ... 9
+    ... '''
+    >>> get_lines_by_point(string, 5)
+    ['5']
+    >>> get_lines_by_point(string, 5, 2, 1)
+    ['1', '3', '5', '7']
+    >>> get_lines_by_point(string, 3, 2)  # not enough previous lines
+    ['1', '3']
+    >>> get_lines_by_point(string, 7, 0, 2)  # not enough post lines
+    ['7', '9']
+
+    """
+    line_no = count(string, '\n', 0, point - 1)
+    i = max(line_no - pre_lines, 0)
+    j = line_no + post_lines + 1
+    return string.splitlines()[i:j]
