@@ -90,3 +90,13 @@ class TestDataBaseScript(unittest.TestCase):
             'GROUP BY file_path '
             'ORDER BY recorded DESC LIMIT ?')
         self.assertEqual(params, ['*.py', '*.el', '/home/*', 50])
+
+    def test_script_search_file_log_no_unique(self):
+        (sql, params) = self.script_search_file_log(
+            50, unique=False)
+        self.assertEqual(
+            sql,
+            'SELECT file_path, file_point, recorded, activity_type '
+            'FROM file_log '
+            'ORDER BY recorded DESC LIMIT ?')
+        self.assertEqual(params, [50])
