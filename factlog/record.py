@@ -51,8 +51,7 @@ def list_add_arguments(parser):
     parser.add_argument(
         '--no-unique', dest='unique', action='store_false', default=True,
         help="""
-        [WORK IN PROGRESS]
-        Include all duplicates.
+        Include all duplicates.  See also --format.
         """)
     parser.add_argument(
         '--include-glob', metavar='GLOB', default=[], action='append',
