@@ -139,9 +139,9 @@ def list_run(
     absunder = [os.path.join(os.path.abspath(p), "") for p in under]
     include_glob += [os.path.join(p, "*") for p in absunder]
     db = get_db()
-    paths = db.list_file_path(
+    rows = db.list_file_path(
         limit, activity_types, unique, include_glob, exclude_glob)
-    paths = filter(os.path.exists, paths)
+    paths = filter(os.path.exists, (r.path for r in rows))
     paths = showpaths = list(paths)
     if relative:
         showpaths = [remove_prefix(absunder, p) for p in paths]

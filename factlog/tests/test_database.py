@@ -22,7 +22,8 @@ class TestDataBaseScript(unittest.TestCase):
         (sql, params) = self.script_list_file_path(50)
         self.assertEqual(
             sql,
-            'SELECT DISTINCT file_path FROM file_log '
+            'SELECT DISTINCT file_path, file_point, recorded, activity_type '
+            'FROM file_log '
             'ORDER BY recorded DESC LIMIT ?')
         self.assertEqual(
             params,
@@ -33,7 +34,8 @@ class TestDataBaseScript(unittest.TestCase):
             50, activity_types=['write'])
         self.assertEqual(
             sql,
-            'SELECT DISTINCT file_path FROM file_log '
+            'SELECT DISTINCT file_path, file_point, recorded, activity_type '
+            'FROM file_log '
             'WHERE activity_type in (?) '
             'ORDER BY recorded DESC LIMIT ?')
         self.assertEqual(params, ['write', 50])
@@ -43,7 +45,8 @@ class TestDataBaseScript(unittest.TestCase):
             50, activity_types=['write', 'open'])
         self.assertEqual(
             sql,
-            'SELECT DISTINCT file_path FROM file_log '
+            'SELECT DISTINCT file_path, file_point, recorded, activity_type '
+            'FROM file_log '
             'WHERE activity_type in (?, ?) '
             'ORDER BY recorded DESC LIMIT ?')
         self.assertEqual(params, ['write', 'open', 50])
@@ -53,7 +56,8 @@ class TestDataBaseScript(unittest.TestCase):
             50, include_glob=['*.py', '*.el'])
         self.assertEqual(
             sql,
-            'SELECT DISTINCT file_path FROM file_log '
+            'SELECT DISTINCT file_path, file_point, recorded, activity_type '
+            'FROM file_log '
             'WHERE (glob(?, file_path) OR glob(?, file_path)) '
             'ORDER BY recorded DESC LIMIT ?')
         self.assertEqual(params, ['*.py', '*.el', 50])
@@ -63,7 +67,8 @@ class TestDataBaseScript(unittest.TestCase):
             50, exclude_glob=['*.py', '*.el'])
         self.assertEqual(
             sql,
-            'SELECT DISTINCT file_path FROM file_log '
+            'SELECT DISTINCT file_path, file_point, recorded, activity_type '
+            'FROM file_log '
             'WHERE NOT glob(?, file_path) AND NOT glob(?, file_path) '
             'ORDER BY recorded DESC LIMIT ?')
         self.assertEqual(params, ['*.py', '*.el', 50])
@@ -73,7 +78,8 @@ class TestDataBaseScript(unittest.TestCase):
             50, include_glob=['*.py', '*.el'], exclude_glob=['/home/*'])
         self.assertEqual(
             sql,
-            'SELECT DISTINCT file_path FROM file_log '
+            'SELECT DISTINCT file_path, file_point, recorded, activity_type '
+            'FROM file_log '
             'WHERE (glob(?, file_path) OR glob(?, file_path)) '
             'AND NOT glob(?, file_path) '
             'ORDER BY recorded DESC LIMIT ?')

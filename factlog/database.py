@@ -1,6 +1,7 @@
 import os
 import sqlite3
 from contextlib import closing
+from collections import namedtuple
 
 from .utils.iterutils import repeat
 
@@ -14,6 +15,14 @@ def concat_expr(operator, conditions):
     """
     expr = " {0} ".format(operator).join(conditions)
     return ["({0})".format(expr)] if expr else []
+
+
+AccessInfo = namedtuple(
+    'AccessInfo',
+    ['path', 'point', 'recorded', 'type'])
+"""
+Access information object.
+"""
 
 
 class DataBase(object):
@@ -79,7 +88,7 @@ class DataBase(object):
             limit, activity_types, unique, include_glob, exclude_glob):
         # FIXME: support `unique` (currently ignored)
         params = []
-        columns = 'file_path'
+        columns = 'file_path, file_point, recorded, activity_type'
         conditions = []
         if unique:
             # FIXME: make sure that the selected row is the most recent one
@@ -111,7 +120,7 @@ class DataBase(object):
             self, limit, activity_types=None, unique=True,
             include_glob=[], exclude_glob=[]):
         """
-        Return an iterator which yields file paths.
+        Return an iterator which yields file access information.
 
         :type          limit: int
         :arg           limit: maximum number of files to list
@@ -124,9 +133,11 @@ class DataBase(object):
         :type   exclude_glob: list
         :arg    exclude_glob: a list of glob expression
 
+        :rtype: list of AccessInfo
+
         """
         with closing(self._get_db()) as db:
             cursor = db.execute(*self._script_list_file_path(
                 limit, activity_types, unique, include_glob, exclude_glob))
-            for (file_path,) in cursor:
-                yield file_path
+            for row in cursor:
+                yield AccessInfo(*row)
