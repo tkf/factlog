@@ -50,8 +50,9 @@ def get_lines_at_point(string, point, pre_lines=0, post_lines=0):
     :type  post_lines: int
     :arg   post_lines: number of post lines to include (default: 0)
 
-    :rtype: list of strings
-    :return: lines (newline at the end of lines are stripped off)
+    :rtype: list of tuple of int and str
+    :return: Pairs of 1-based line number and line.
+             Newline at the end of lines are stripped off.
 
     >>> string = '''\
     ... 1
@@ -61,16 +62,16 @@ def get_lines_at_point(string, point, pre_lines=0, post_lines=0):
     ... 9
     ... '''
     >>> get_lines_at_point(string, 5)
-    ['5']
+    [(3, '5')]
     >>> get_lines_at_point(string, 5, 2, 1)
-    ['1', '3', '5', '7']
+    [(1, '1'), (2, '3'), (3, '5'), (4, '7')]
     >>> get_lines_at_point(string, 3, 2)  # not enough previous lines
-    ['1', '3']
+    [(1, '1'), (2, '3')]
     >>> get_lines_at_point(string, 7, 0, 2)  # not enough post lines
-    ['7', '9']
+    [(4, '7'), (5, '9')]
 
     """
     line_no = get_lineno_at_point(string, point) - 1  # 0-origin
     i = max(line_no - pre_lines, 0)
     j = line_no + post_lines + 1
-    return string.splitlines()[i:j]
+    return zip(range(i + 1, j + 1), string.splitlines()[i:j])
