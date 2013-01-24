@@ -88,7 +88,7 @@ class DataBase(object):
             limit, activity_types, unique, include_glob, exclude_glob):
         # FIXME: support `unique` (currently ignored)
         params = []
-        columns = 'file_path, file_point, recorded, activity_type'
+        columns = 'file_path, file_point, MAX(recorded), activity_type'
         conditions = []
         if activity_types is not None:
             conditions.append('activity_type in ({0})'.format(
@@ -106,7 +106,6 @@ class DataBase(object):
         else:
             where = ''
         if unique:
-            # FIXME: make sure that the selected row is the most recent one
             group_by = 'GROUP BY file_path '
         sql = (
             'SELECT {0} FROM file_log {1}{2}'
