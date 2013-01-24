@@ -1,11 +1,8 @@
 import os
-import itertools
 import sqlite3
 from contextlib import closing
 
-
-def repeat(item, num):
-    return itertools.islice(itertools.repeat(item), num)
+from .utils.iterutils import repeat
 
 
 def concat_expr(operator, conditions):

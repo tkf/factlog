@@ -4,6 +4,8 @@ import itertools
 
 from .config import ConfigStore
 from .database import DataBase
+from .utils.iterutils import interleave
+from .utils.strutils import remove_prefix
 
 
 def get_db(*args, **kwds):
@@ -31,30 +33,6 @@ def record_run(file_path, file_point, activity_type):
     db = get_db()
     db.record_file_log(
         file_path, file_point=file_point, activity_type=activity_type)
-
-
-def interleave(*iteratives):
-    """
-    Return an iterator that interleave elements from given `iteratives`.
-
-    >>> list(interleave([1, 2, 3], itertools.repeat(None)))
-    [1, None, 2, None, 3, None]
-
-    """
-    iters = map(iter, iteratives)
-    while True:
-        for it in iters:
-            yield next(it)
-
-
-def remove_prefix(prefixes, string):
-    """
-    Remove prefix of string if one of the candidate in `prefixes` matches.
-    """
-    for pre in prefixes:
-        if string.startswith(pre):
-            return string[len(pre):]
-    return string
 
 
 def list_add_arguments(parser):
