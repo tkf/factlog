@@ -99,7 +99,7 @@ class DataBase(object):
         params.extend(exclude_glob)
 
         if conditions:
-            where = ' WHERE {0} '.format(" AND ".join(conditions))
+            where = 'WHERE {0} '.format(" AND ".join(conditions))
         else:
             where = ''
         sql = (
