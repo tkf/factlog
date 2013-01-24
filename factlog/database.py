@@ -90,9 +90,6 @@ class DataBase(object):
         params = []
         columns = 'file_path, file_point, recorded, activity_type'
         conditions = []
-        if unique:
-            # FIXME: make sure that the selected row is the most recent one
-            columns = 'DISTINCT ' + columns
         if activity_types is not None:
             conditions.append('activity_type in ({0})'.format(
                 ', '.join(repeat('?', len(activity_types)))))
@@ -108,11 +105,14 @@ class DataBase(object):
             where = 'WHERE {0} '.format(" AND ".join(conditions))
         else:
             where = ''
+        if unique:
+            # FIXME: make sure that the selected row is the most recent one
+            group_by = 'GROUP BY file_path '
         sql = (
-            'SELECT {0} FROM file_log {1}'
+            'SELECT {0} FROM file_log {1}{2}'
             'ORDER BY recorded DESC '
             'LIMIT ?'
-        ).format(columns, where)
+        ).format(columns, where, group_by)
         params.append(limit)
         return (sql, params)
 
