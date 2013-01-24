@@ -17,6 +17,26 @@ def remove_prefix(prefixes, string):
     return string
 
 
+def get_lineno_by_point(string, point):
+    r"""
+    Get 1-based line number at given `point`.
+
+    >>> string = '''\
+    ... 1
+    ... 34
+    ... 678
+    ... '''
+    >>> get_lineno_by_point(string, 3)
+    2
+    >>> get_lineno_by_point(string, 6)
+    3
+    >>> get_lineno_by_point(string, 7)
+    3
+
+    """
+    return count(string, '\n', 0, point - 1) + 1
+
+
 def get_lines_by_point(string, point, pre_lines=0, post_lines=0):
     r"""
     Get lines containing point.
@@ -50,7 +70,7 @@ def get_lines_by_point(string, point, pre_lines=0, post_lines=0):
     ['7', '9']
 
     """
-    line_no = count(string, '\n', 0, point - 1)
+    line_no = get_lineno_by_point(string, point) - 1  # 0-origin
     i = max(line_no - pre_lines, 0)
     j = line_no + post_lines + 1
     return string.splitlines()[i:j]
