@@ -151,8 +151,8 @@ def list_run(
     elif before_context or after_context or context:
         from .utils.fileutils import write_paths_and_lines
         points = (r.point for r in rows)
-        pre_lines = context if before_context is None else before_context
-        post_lines = context if after_context is None else after_context
+        pre_lines = next(iter(filter(None, [before_context, context, 0])))
+        post_lines = next(iter(filter(None, [after_context, context, 0])))
         write_paths_and_lines(output, paths, points, showpaths, separator,
                               pre_lines=pre_lines, post_lines=post_lines)
     else:
