@@ -127,9 +127,8 @@ def list_add_arguments(parser):
 
 
 def list_run(
-        limit, activity_types, output, unique, include_glob, exclude_glob,
-        under, relative, title, null, before_context, after_context, context,
-        **_):
+        limit, activity_types, unique, include_glob, exclude_glob,
+        under, null, **kwds):
     """
     List recently accessed files.
     """
@@ -139,6 +138,33 @@ def list_run(
     db = get_db()
     rows = db.search_file_log(
         limit, activity_types, unique, include_glob, exclude_glob)
+    write_listed_rows(rows, absunder, separator, **kwds)
+
+
+def write_listed_rows(
+        rows, absunder, separator, output, relative, title,
+        before_context, after_context, context, **_):
+    r"""
+    Write `rows` into `output`.
+
+    :type            rows: iterative of :class:`factlog.database.AccessInfo`
+    :arg             rows:
+    :type        absunder: str
+    :arg         absunder: absolute path of the path given by --under
+    :type       separator: str
+    :arg        separator: '\n' or '\0'
+    :type        relative: bool
+    :arg         relative:
+    :type           title: bool
+    :arg            title:
+    :type  before_context: int
+    :arg   before_context: print this number of line before the point
+    :type   after_context: int
+    :arg    after_context: print this number of line after the point
+    :type         context: int
+    :arg          context: print this number of line before and after the point
+
+    """
     rows = (r for r in rows if os.path.exists(r.path))
     rows = list(rows)           # FIXME: optimize!
     paths = showpaths = [r.path for r in rows]
