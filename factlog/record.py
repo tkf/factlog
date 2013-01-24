@@ -137,7 +137,7 @@ def list_run(
     absunder = [os.path.join(os.path.abspath(p), "") for p in under]
     include_glob += [os.path.join(p, "*") for p in absunder]
     db = get_db()
-    rows = db.list_file_path(
+    rows = db.search_file_log(
         limit, activity_types, unique, include_glob, exclude_glob)
     rows = (r for r in rows if os.path.exists(r.path))
     rows = list(rows)           # FIXME: optimize!

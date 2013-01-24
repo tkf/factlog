@@ -84,7 +84,7 @@ class DataBase(object):
             db.commit()
 
     @staticmethod
-    def _script_list_file_path(
+    def _script_search_file_log(
             limit, activity_types, unique, include_glob, exclude_glob):
         # FIXME: support `unique` (currently ignored)
         params = []
@@ -115,7 +115,7 @@ class DataBase(object):
         params.append(limit)
         return (sql, params)
 
-    def list_file_path(
+    def search_file_log(
             self, limit, activity_types=None, unique=True,
             include_glob=[], exclude_glob=[]):
         """
@@ -136,7 +136,7 @@ class DataBase(object):
 
         """
         with closing(self._get_db()) as db:
-            cursor = db.execute(*self._script_list_file_path(
+            cursor = db.execute(*self._script_search_file_log(
                 limit, activity_types, unique, include_glob, exclude_glob))
             for row in cursor:
                 yield AccessInfo(*row)
