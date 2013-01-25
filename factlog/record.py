@@ -165,6 +165,7 @@ def write_listed_rows(
     :arg          context: print this number of line before and after the point
 
     """
+    nonnone = lambda x: x is not None
     rows = (r for r in rows if os.path.exists(r.path))
     rows = list(rows)           # FIXME: optimize!
     paths = showpaths = [r.path for r in rows]
@@ -174,11 +175,11 @@ def write_listed_rows(
     if title:
         from .filetitle import write_paths_and_titles
         write_paths_and_titles(output, paths, showpaths, separator)
-    elif before_context or after_context or context:
+    elif list(filter(nonnone, [before_context, after_context, context])):
         from .utils.fileutils import write_paths_and_lines
         points = (r.point for r in rows)
-        pre_lines = next(iter(filter(None, [before_context, context, 0])))
-        post_lines = next(iter(filter(None, [after_context, context, 0])))
+        pre_lines = next(iter(filter(nonnone, [before_context, context, 0])))
+        post_lines = next(iter(filter(nonnone, [after_context, context, 0])))
         write_paths_and_lines(output, paths, points, showpaths, separator,
                               pre_lines=pre_lines, post_lines=post_lines)
     else:
