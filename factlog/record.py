@@ -149,19 +149,19 @@ def write_listed_rows(
 
     :type            rows: iterative of :class:`factlog.database.AccessInfo`
     :arg             rows:
-    :type        absunder: str
-    :arg         absunder: absolute path of the path given by --under
+    :type        absunder: list of str
+    :arg         absunder: absolute paths of the paths given by --under
     :type       separator: str
     :arg        separator: '\n' or '\0'
     :type        relative: bool
     :arg         relative:
     :type           title: bool
     :arg            title:
-    :type  before_context: int
+    :type  before_context: int or None
     :arg   before_context: print this number of line before the point
-    :type   after_context: int
+    :type   after_context: int or None
     :arg    after_context: print this number of line after the point
-    :type         context: int
+    :type         context: int or None
     :arg          context: print this number of line before and after the point
 
     """
