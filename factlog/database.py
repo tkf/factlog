@@ -1,7 +1,6 @@
 import os
 import sqlite3
 from contextlib import closing
-from collections import namedtuple
 
 from .utils.iterutils import repeat
 
@@ -17,12 +16,13 @@ def concat_expr(operator, conditions):
     return ["({0})".format(expr)] if expr else []
 
 
-AccessInfo = namedtuple(
-    'AccessInfo',
-    ['path', 'point', 'recorded', 'type'])
-"""
-Access information object.
-"""
+class AccessInfo(object):
+
+    """
+    Access information object.
+    """
+
+    __slots__ = ['path', 'point', 'recorded', 'type']
 
 
 class DataBase(object):
