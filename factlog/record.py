@@ -132,24 +132,24 @@ def list_run(
     """
     List recently accessed files.
     """
-    separator = '\0' if null else '\n'
+    newline = '\0' if null else '\n'
     db = get_db()
     rows = db.search_file_log(
         limit, activity_types, unique, include_glob, exclude_glob,
         under, relative)
-    write_listed_rows(rows, separator, **kwds)
+    write_listed_rows(rows, newline, **kwds)
 
 
 def write_listed_rows(
-        rows, separator, output, title,
+        rows, newline, output, title,
         before_context, after_context, context, **_):
     r"""
     Write `rows` into `output`.
 
     :type            rows: iterative of :class:`factlog.database.AccessInfo`
     :arg             rows:
-    :type       separator: str
-    :arg        separator: '\n' or '\0'
+    :type         newline: str
+    :arg          newline: '\n' or '\0'
     :type           title: bool
     :arg            title:
     :type  before_context: int or None
@@ -167,15 +167,15 @@ def write_listed_rows(
     showpaths = [r.showpath for r in rows]
     if title:
         from .filetitle import write_paths_and_titles
-        write_paths_and_titles(output, paths, showpaths, separator)
+        write_paths_and_titles(output, paths, showpaths, newline)
     elif list(filter(nonnone, [before_context, after_context, context])):
         pre_lines = next(iter(filter(nonnone, [before_context, context, 0])))
         post_lines = next(iter(filter(nonnone, [after_context, context, 0])))
         for info in rows:
             info.write_paths_and_lines(output, pre_lines, post_lines,
-                                       separator)
+                                       newline)
     else:
-        output.writelines(interleave(showpaths, itertools.repeat(separator)))
+        output.writelines(interleave(showpaths, itertools.repeat(newline)))
     if output is not sys.stdout:
         output.close()
 
