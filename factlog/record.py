@@ -165,7 +165,7 @@ def write_listed_rows(
     showpaths = [r.showpath for r in rows]
     if title:
         for info in rows:
-            info.write_path_and_title(file, newline)
+            info.write_path_and_title(output, newline)
     elif list(filter(nonnone, [before_context, after_context, context])):
         pre_lines = next(iter(filter(nonnone, [before_context, context, 0])))
         post_lines = next(iter(filter(nonnone, [after_context, context, 0])))
