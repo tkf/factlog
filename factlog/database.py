@@ -147,7 +147,8 @@ class DataBase(object):
         def wrapper(self, limit, activity_types, unique,
                     include_glob, exclude_glob, under, relative):
             absunder = [os.path.join(os.path.abspath(p), "") for p in under]
-            include_glob += [os.path.join(p, "*") for p in absunder]
+            include_glob = include_glob + \
+                           [os.path.join(p, "*") for p in absunder]
             iter_info = func(
                 self, limit, activity_types, unique,
                 include_glob, exclude_glob)

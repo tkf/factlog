@@ -156,6 +156,23 @@ class TestInMemoryDataBase(unittest.TestCase):
         self.assertEqual(info.type, atype)
         self.assertEqual(info.point, point)
 
+    def setup_search_uniquify(self):
+        for _ in range(3):
+            self.db.record_file_log(self.paths[0], 'write')
+
+    def test_search_uniquify(self):
+        self.setup_search_uniquify()
+        rows = self.search_file_log()
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0].path, self.paths[0])
+
+    def test_search_dont_uniquify(self):
+        self.setup_search_uniquify()
+        rows = self.search_file_log(unique=False)
+        self.assertEqual(len(rows), 3)
+        self.assertEqual(rows[0].path, self.paths[0])
+        self.assertEqual(len(set(i.path for i in rows)), 1)
+
     def setup_search_under(self):
         self.root_a = root_a = self.abspath('DUMMY', 'ROOT-A')
         self.root_b = root_b = self.abspath('DUMMY', 'ROOT-B')
