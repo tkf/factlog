@@ -43,15 +43,17 @@ class AccessInfo(object):
         self.showpath = remove_prefix(absunder, self.path)
         return self.showpath
 
+    def _get_lines_at_point(self, pre_lines, post_lines):
+        with open(self.path) as f:
+            return get_lines_at_point(
+                f.read(), self.point, pre_lines, post_lines)
+
     def write_paths_and_lines(self, file, pre_lines=0, post_lines=0,
                               newline='\n', separator=':'):
         """
         Write :attr:`showpath` and lines around :attr:`point` to `file`.
         """
-        with open(self.path) as f:
-            lines = get_lines_at_point(
-                f.read(), self.point, pre_lines, post_lines)
-        for (lineno, line) in lines:
+        for (lineno, line) in self._get_lines_at_point(pre_lines, post_lines):
             file.write(self.showpath)
             file.write(separator)
             file.write(str(lineno))
