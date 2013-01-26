@@ -169,12 +169,11 @@ def write_listed_rows(
         from .filetitle import write_paths_and_titles
         write_paths_and_titles(output, paths, showpaths, separator)
     elif list(filter(nonnone, [before_context, after_context, context])):
-        from .utils.fileutils import write_paths_and_lines
-        points = (r.point for r in rows)
         pre_lines = next(iter(filter(nonnone, [before_context, context, 0])))
         post_lines = next(iter(filter(nonnone, [after_context, context, 0])))
-        write_paths_and_lines(output, paths, points, showpaths, separator,
-                              pre_lines=pre_lines, post_lines=post_lines)
+        for info in rows:
+            info.write_paths_and_lines(output, pre_lines, post_lines,
+                                       separator)
     else:
         output.writelines(interleave(showpaths, itertools.repeat(separator)))
     if output is not sys.stdout:
