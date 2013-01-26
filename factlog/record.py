@@ -163,11 +163,10 @@ def write_listed_rows(
     nonnone = lambda x: x is not None
     rows = (r for r in rows if os.path.exists(r.path))
     rows = list(rows)           # FIXME: optimize!
-    paths = [r.path for r in rows]
     showpaths = [r.showpath for r in rows]
     if title:
-        from .filetitle import write_paths_and_titles
-        write_paths_and_titles(output, paths, showpaths, newline)
+        for info in rows:
+            info.write_path_and_title(file, newline)
     elif list(filter(nonnone, [before_context, after_context, context])):
         pre_lines = next(iter(filter(nonnone, [before_context, context, 0])))
         post_lines = next(iter(filter(nonnone, [after_context, context, 0])))

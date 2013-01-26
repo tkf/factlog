@@ -1,4 +1,5 @@
 from .utils.strutils import remove_prefix, get_lines_at_point
+from .filetitle import write_path_and_title
 
 
 class AccessInfo(object):
@@ -43,3 +44,10 @@ class AccessInfo(object):
             file.write(separator)
             file.write(line)
             file.write(newline)
+
+    def write_path_and_title(self, file, newline='\n', separator=':'):
+        """
+        Call :func:`.filetitle.write_path_and_title`.
+        """
+        write_path_and_title(file, self.path, self.showpath,
+                             newline, separator)

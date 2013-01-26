@@ -113,6 +113,27 @@ def get_title(path):
         return func(path)
 
 
+def write_path_and_title(file, path, showpath, newline, separator):
+    r"""
+    Write `showpath` to `file` with its title if found.
+
+    Following line is written to the `file`::
+
+      {showpath}{separator}{title}{newline}
+                \________________/
+                  written only when title is found.
+
+    Title is searched in the file specified by `path`.
+
+    """
+    file.write(showpath)
+    title = get_title(path)
+    if title:
+        file.write(separator)
+        file.write(title)
+    file.write(newline)
+
+
 def write_paths_and_titles(
         file, paths, showpaths=None, newline='\n', separator=':'):
     """
@@ -130,12 +151,7 @@ def write_paths_and_titles(
     if showpaths is None:
         showpaths = paths
     for (path, show) in zip(paths, showpaths):
-        file.write(show)
-        title = get_title(path)
-        if title:
-            file.write(separator)
-            file.write(title)
-        file.write(newline)
+        write_path_and_title(file, path, show, newline, separator)
 
 
 def main(args=None):
