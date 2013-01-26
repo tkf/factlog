@@ -119,6 +119,9 @@ class TestInMemoryDataBase(unittest.TestCase):
     def abspath(self, *ps):
         return os.path.join(os.path.sep, *ps)
 
+    def paths_under(self, root, num):
+        return [os.path.join(root, '{0:02d}'.format(i)) for i in range(num)]
+
     def setUp(self):
         self.db = self.dbclass()
         self.paths = [
@@ -126,11 +129,15 @@ class TestInMemoryDataBase(unittest.TestCase):
             for i in range(100)
         ]
 
+    def search_file_log(self, limit=10, only_existing=False, **kwds):
+        return list(self.db.search_file_log(
+            limit, only_existing=only_existing, **kwds))
+
     def test_record_and_search(self):
         self.db.record_file_log(self.paths[0], 'write')
         self.db.record_file_log(self.paths[1], 'open')
         self.db.record_file_log(self.paths[2], 'close')
-        rows = list(self.db.search_file_log(10, only_existing=False))
+        rows = self.search_file_log()
         self.assertEqual(
             [i.path for i in rows],
             self.paths[:3])
@@ -142,9 +149,31 @@ class TestInMemoryDataBase(unittest.TestCase):
         atype = 'write'
         point = 23
         self.db.record_file_log(self.paths[0], atype, file_point=point)
-        rows = list(self.db.search_file_log(10, only_existing=False))
+        rows = self.search_file_log()
         info = rows[0]
         self.assertEqual(len(rows), 1)
         self.assertEqual(info.path, self.paths[0])
         self.assertEqual(info.type, atype)
         self.assertEqual(info.point, point)
+
+    def setup_search_under(self):
+        self.root_a = root_a = self.abspath('DUMMY', 'ROOT-A')
+        self.root_b = root_b = self.abspath('DUMMY', 'ROOT-B')
+        self.paths_a = paths_a = self.paths_under(root_a, 3)
+        self.paths_b = paths_b = self.paths_under(root_b, 5)
+        for p in paths_a + paths_b:
+            self.db.record_file_log(p, 'write')
+
+    def test_search_under(self):
+        self.setup_search_under()
+        under = [self.root_a]
+        paths_a = self.paths_a
+        rows = self.search_file_log(under=under)
+        self.assertEqual([i.showpath for i in rows], paths_a)
+
+    def test_search_relative(self):
+        self.setup_search_under()
+        under = [self.root_a]
+        paths_a = [os.path.relpath(p, self.root_a) for p in self.paths_a]
+        rows = self.search_file_log(under=under, relative=True)
+        self.assertEqual([i.showpath for i in rows], paths_a)
