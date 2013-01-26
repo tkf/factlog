@@ -124,6 +124,17 @@ class DataBase(object):
                 include_glob, exclude_glob, under, relative)
         return wrapper
 
+    def __wrap_search_file_log_exclude_non_existing_path(func):
+        """
+        Filter out rows for non-existing path.
+        """
+        @functools.wraps(func)
+        def wrapper(self, *args, **kwds):
+            for info in func(*args, **kwds):
+                if os.path.exists(info.path):
+                    yield info
+        return wrapper
+
     def __wrap_search_file_log_for_under(func):
         """
         Implement `under` and `relative` part for :meth:`search_file_log`.
@@ -145,6 +156,7 @@ class DataBase(object):
         return wrapper
 
     @__wrap_search_file_log_defaults
+    @__wrap_search_file_log_exclude_non_existing_path
     @__wrap_search_file_log_for_under
     def search_file_log(
             self, limit, activity_types, unique, include_glob, exclude_glob):

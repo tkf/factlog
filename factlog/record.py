@@ -161,7 +161,6 @@ def write_listed_rows(
 
     """
     nonnone = lambda x: x is not None
-    rows = (r for r in rows if os.path.exists(r.path))
     rows = list(rows)           # FIXME: optimize!
     showpaths = [r.showpath for r in rows]
     if title:
