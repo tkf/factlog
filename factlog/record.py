@@ -1,11 +1,9 @@
-import os
 import sys
 import itertools
 
 from .config import ConfigStore
 from .database import DataBase
 from .utils.iterutils import interleave
-from .utils.strutils import remove_prefix
 
 
 def get_db(*args, **kwds):
