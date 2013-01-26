@@ -161,8 +161,6 @@ def write_listed_rows(
 
     """
     nonnone = lambda x: x is not None
-    rows = list(rows)           # FIXME: optimize!
-    showpaths = [r.showpath for r in rows]
     if title:
         for info in rows:
             info.write_path_and_title(output, newline)
@@ -173,6 +171,7 @@ def write_listed_rows(
             info.write_paths_and_lines(output, pre_lines, post_lines,
                                        newline)
     else:
+        showpaths = (r.showpath for r in rows)
         output.writelines(interleave(showpaths, itertools.repeat(newline)))
     if output is not sys.stdout:
         output.close()
