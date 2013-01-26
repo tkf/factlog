@@ -2,7 +2,7 @@ import unittest
 import textwrap
 import io
 
-from ..database import AccessInfo
+from ..accessinfo import AccessInfo
 
 
 class MockedAccessInfo(AccessInfo):
