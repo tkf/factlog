@@ -137,3 +137,14 @@ class TestInMemoryDataBase(unittest.TestCase):
         self.assertEqual(
             [i.type for i in rows],
             ['write', 'open', 'close'])
+
+    def test_record_file_point(self):
+        atype = 'write'
+        point = 23
+        self.db.record_file_log(self.paths[0], atype, file_point=point)
+        rows = list(self.db.search_file_log(10, only_existing=False))
+        info = rows[0]
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(info.path, self.paths[0])
+        self.assertEqual(info.type, atype)
+        self.assertEqual(info.point, point)
