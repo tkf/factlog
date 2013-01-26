@@ -128,33 +128,28 @@ def list_add_arguments(parser):
 
 def list_run(
         limit, activity_types, unique, include_glob, exclude_glob,
-        under, null, **kwds):
+        under, relative, null, **kwds):
     """
     List recently accessed files.
     """
     separator = '\0' if null else '\n'
-    absunder = [os.path.join(os.path.abspath(p), "") for p in under]
-    include_glob += [os.path.join(p, "*") for p in absunder]
     db = get_db()
     rows = db.search_file_log(
-        limit, activity_types, unique, include_glob, exclude_glob)
-    write_listed_rows(rows, absunder, separator, **kwds)
+        limit, activity_types, unique, include_glob, exclude_glob,
+        under, relative)
+    write_listed_rows(rows, separator, **kwds)
 
 
 def write_listed_rows(
-        rows, absunder, separator, output, relative, title,
+        rows, separator, output, title,
         before_context, after_context, context, **_):
     r"""
     Write `rows` into `output`.
 
     :type            rows: iterative of :class:`factlog.database.AccessInfo`
     :arg             rows:
-    :type        absunder: list of str
-    :arg         absunder: absolute paths of the paths given by --under
     :type       separator: str
     :arg        separator: '\n' or '\0'
-    :type        relative: bool
-    :arg         relative:
     :type           title: bool
     :arg            title:
     :type  before_context: int or None
@@ -168,10 +163,8 @@ def write_listed_rows(
     nonnone = lambda x: x is not None
     rows = (r for r in rows if os.path.exists(r.path))
     rows = list(rows)           # FIXME: optimize!
-    paths = showpaths = [r.path for r in rows]
-    if relative:
-        showpaths = [remove_prefix(absunder, p) for p in paths]
-        (showpaths, paths) = zip(*list(dict(zip(showpaths, paths)).items()))
+    paths = [r.path for r in rows]
+    showpaths = [r.showpath for r in rows]
     if title:
         from .filetitle import write_paths_and_titles
         write_paths_and_titles(output, paths, showpaths, separator)

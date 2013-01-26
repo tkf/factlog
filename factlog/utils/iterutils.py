@@ -17,3 +17,12 @@ def interleave(*iteratives):
     while True:
         for it in iters:
             yield next(it)
+
+
+def uniq(seq, key=lambda x: x):
+    seen = set()
+    for i in seq:
+        k = key(i)
+        if k not in seen:
+            yield i
+            seen.add(k)

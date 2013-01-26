@@ -2,7 +2,8 @@ import os
 import sqlite3
 from contextlib import closing
 
-from .utils.iterutils import repeat
+from .utils.iterutils import repeat, uniq
+from .utils.strutils import remove_prefix, get_lines_at_point
 
 
 def concat_expr(operator, conditions):
@@ -22,7 +23,37 @@ class AccessInfo(object):
     Access information object.
     """
 
-    __slots__ = ['path', 'point', 'recorded', 'type']
+    __slots__ = ['path', 'point', 'recorded', 'type', 'showpath']
+
+    def __init__(self, path, point, recorded, type):
+        self.path = self.showpath = path
+        self.point = point
+        self.recorded = recorded
+        self.type = type
+
+    def _set_relative_path(self, absunder):
+        """
+        Set :attr:`showpath` and return the newly set value.
+
+        :attr:`showpath` is set the relative path of :attr:`path` from
+        one of the path in `absunder`.
+
+        """
+        self.showpath = remove_prefix(absunder, self.path)
+        return self.showpath
+
+    def write_paths_and_lines(self, file, pre_lines=0, post_lines=0,
+                              newline='\n', separator=':'):
+        with open(self.path) as f:
+            lines = get_lines_at_point(
+                f.read(), self.point, pre_lines, post_lines)
+        for (lineno, line) in lines:
+            file.write(self.showpath)
+            file.write(separator)
+            file.write(str(lineno))
+            file.write(separator)
+            file.write(line)
+            file.write(newline)
 
 
 class DataBase(object):
@@ -118,6 +149,27 @@ class DataBase(object):
         params.append(limit)
         return (sql, params)
 
+    def __wrap_search_file_log_for_under(func):
+        """
+        Implement `under` and `relative` part for :meth:`search_file_log`.
+        """
+        def wrapper(self, limit, activity_types=None, unique=True,
+                    include_glob=[], exclude_glob=[],
+                    under=[], relative=False):
+            absunder = [os.path.join(os.path.abspath(p), "") for p in under]
+            include_glob += [os.path.join(p, "*") for p in absunder]
+            iter_info = func(
+                self, limit, activity_types, unique,
+                include_glob, exclude_glob)
+            if relative:
+                return uniq(
+                    iter_info,
+                    lambda i: i._set_relative_path(absunder))
+            else:
+                return iter_info
+        return wrapper
+
+    @__wrap_search_file_log_for_under
     def search_file_log(
             self, limit, activity_types=None, unique=True,
             include_glob=[], exclude_glob=[]):
@@ -134,6 +186,11 @@ class DataBase(object):
         :arg    include_glob: a list of glob expression
         :type   exclude_glob: list
         :arg    exclude_glob: a list of glob expression
+
+        :type          under: list of str
+        :arg           under: paths given by --under
+        :type       relative: bool
+        :arg        relative:
 
         :rtype: list of AccessInfo
 
