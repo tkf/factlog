@@ -1,5 +1,6 @@
 import os
 import sqlite3
+import functools
 from contextlib import closing
 
 from .utils.iterutils import repeat, uniq
@@ -152,13 +153,26 @@ class DataBase(object):
         params.append(limit)
         return (sql, params)
 
+    def __wrap_search_file_log_defaults(func):
+        """
+        Set default arguments for :meth:`search_file_log`.
+        """
+        @functools.wraps(func)
+        def wrapper(self, limit, activity_types=None, unique=True,
+                    include_glob=[], exclude_glob=[],
+                    under=[], relative=False):
+            return func(
+                self, limit, activity_types, unique,
+                include_glob, exclude_glob, under, relative)
+        return wrapper
+
     def __wrap_search_file_log_for_under(func):
         """
         Implement `under` and `relative` part for :meth:`search_file_log`.
         """
-        def wrapper(self, limit, activity_types=None, unique=True,
-                    include_glob=[], exclude_glob=[],
-                    under=[], relative=False):
+        @functools.wraps(func)
+        def wrapper(self, limit, activity_types, unique,
+                    include_glob, exclude_glob, under, relative):
             absunder = [os.path.join(os.path.abspath(p), "") for p in under]
             include_glob += [os.path.join(p, "*") for p in absunder]
             iter_info = func(
@@ -172,10 +186,10 @@ class DataBase(object):
                 return iter_info
         return wrapper
 
+    @__wrap_search_file_log_defaults
     @__wrap_search_file_log_for_under
     def search_file_log(
-            self, limit, activity_types=None, unique=True,
-            include_glob=[], exclude_glob=[]):
+            self, limit, activity_types, unique, include_glob, exclude_glob):
         """
         Return an iterator which yields file access information.
 
