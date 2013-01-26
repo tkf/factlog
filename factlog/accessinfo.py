@@ -45,9 +45,10 @@ class AccessInfo(object):
             file.write(line)
             file.write(newline)
 
-    def write_path_and_title(self, file, newline='\n', separator=':'):
+    def write_path_and_title(self, file, newline='\n', separator=':',
+                             **kwds):
         """
         Call :func:`.filetitle.write_path_and_title`.
         """
         write_path_and_title(file, self.path, self.showpath,
-                             newline, separator)
+                             newline, separator, **kwds)

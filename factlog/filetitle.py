@@ -113,7 +113,8 @@ def get_title(path):
         return func(path)
 
 
-def write_path_and_title(file, path, showpath, newline, separator):
+def write_path_and_title(file, path, showpath, newline, separator,
+                         _get_title=get_title):
     r"""
     Write `showpath` to `file` with its title if found.
 
@@ -127,7 +128,7 @@ def write_path_and_title(file, path, showpath, newline, separator):
 
     """
     file.write(showpath)
-    title = get_title(path)
+    title = _get_title(path)
     if title:
         file.write(separator)
         file.write(title)
