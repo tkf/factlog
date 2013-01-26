@@ -44,6 +44,9 @@ class AccessInfo(object):
 
     def write_paths_and_lines(self, file, pre_lines=0, post_lines=0,
                               newline='\n', separator=':'):
+        """
+        Write :attr:`showpath` and lines around :attr:`point` to `file`.
+        """
         with open(self.path) as f:
             lines = get_lines_at_point(
                 f.read(), self.point, pre_lines, post_lines)
