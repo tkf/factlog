@@ -32,12 +32,12 @@ class DataBase(object):
 
     def _get_db(self):
         """Returns a new connection to the database."""
-        return sqlite3.connect(self.dbpath)
+        return closing(sqlite3.connect(self.dbpath))
 
     def _init_db(self):
         """Creates the database tables."""
         from .__init__ import __version__ as version
-        with closing(self._get_db()) as db:
+        with self._get_db() as db:
             with open(self.schemapath) as f:
                 db.cursor().executescript(f.read())
             db.execute(
@@ -67,7 +67,7 @@ class DataBase(object):
         #        create/delete/move/copy
         assert activity_type in self.ACTIVITY_TYPES
         file_path = os.path.abspath(file_path)
-        with closing(self._get_db()) as db:
+        with self._get_db() as db:
             db.execute(
                 """
                 INSERT INTO file_log (file_path, file_point, activity_type)
@@ -117,11 +117,12 @@ class DataBase(object):
         """
         @functools.wraps(func)
         def wrapper(self, limit, activity_types=None, unique=True,
-                    include_glob=[], exclude_glob=[],
+                    include_glob=[], exclude_glob=[], only_existing=True,
                     under=[], relative=False):
             return func(
                 self, limit, activity_types, unique,
-                include_glob, exclude_glob, under, relative)
+                include_glob, exclude_glob, under, relative,
+                only_existing=only_existing)
         return wrapper
 
     def __wrap_search_file_log_exclude_non_existing_path(func):
@@ -130,9 +131,12 @@ class DataBase(object):
         """
         @functools.wraps(func)
         def wrapper(self, *args, **kwds):
-            for info in func(*args, **kwds):
-                if os.path.exists(info.path):
-                    yield info
+            only_existing = kwds.pop('only_existing')
+            iter_info = func(self, *args, **kwds)
+            if only_existing:
+                return (i for i in iter_info if os.path.exists(i.path))
+            else:
+                return iter_info
         return wrapper
 
     def __wrap_search_file_log_for_under(func):
@@ -178,11 +182,13 @@ class DataBase(object):
         :arg           under: paths given by --under
         :type       relative: bool
         :arg        relative:
+        :type  only_existing: bool
+        :arg   only_existing: if true (default), exclude non-existing paths
 
         :rtype: list of AccessInfo
 
         """
-        with closing(self._get_db()) as db:
+        with self._get_db() as db:
             cursor = db.execute(*self._script_search_file_log(
                 limit, activity_types, unique, include_glob, exclude_glob))
             for row in cursor:

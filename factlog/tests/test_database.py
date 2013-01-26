@@ -1,3 +1,4 @@
+import os
 import unittest
 
 from ..database import DataBase
@@ -100,3 +101,39 @@ class TestDataBaseScript(unittest.TestCase):
             'FROM file_log '
             'ORDER BY recorded DESC LIMIT ?')
         self.assertEqual(params, [50])
+
+
+class InMemoryDataBase(DataBase):
+
+    def __init__(self):
+        import sqlite3
+        db = sqlite3.connect(':memory:')
+        self._get_db = lambda: db
+        self._init_db()
+
+
+class TestInMemoryDataBase(unittest.TestCase):
+
+    dbclass = InMemoryDataBase
+
+    def abspath(self, *ps):
+        return os.path.join(os.path.sep, *ps)
+
+    def setUp(self):
+        self.db = self.dbclass()
+        self.paths = [
+            self.abspath('DUMMY', 'PATH', '{0:02d}'.format(i))
+            for i in range(100)
+        ]
+
+    def test_record_and_search(self):
+        self.db.record_file_log(self.paths[0], 'write')
+        self.db.record_file_log(self.paths[1], 'open')
+        self.db.record_file_log(self.paths[2], 'close')
+        rows = list(self.db.search_file_log(10, only_existing=False))
+        self.assertEqual(
+            [i.path for i in rows],
+            self.paths[:3])
+        self.assertEqual(
+            [i.type for i in rows],
+            ['write', 'open', 'close'])
