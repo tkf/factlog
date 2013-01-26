@@ -10,6 +10,12 @@ class MockedAccessInfo(AccessInfo):
     _lines_at_point = []
     _title = None
 
+    def __init__(self, path, point=10, type='write', recorded='DUMMY',
+                 title=None, lines_at_point=[]):
+        super(MockedAccessInfo, self).__init__(path, point, recorded, type)
+        self._title = title
+        self._lines_at_point = lines_at_point
+
     def _get_lines_at_point(self, *args):
         self._get_lines_at_point_args = args
         return self._lines_at_point
@@ -23,7 +29,7 @@ class MockedAccessInfo(AccessInfo):
 class TestAccessInfo(unittest.TestCase):
 
     def setUp(self):
-        self.info = MockedAccessInfo('PATH', 10, 'DUMMY', 'write')
+        self.info = MockedAccessInfo('PATH')
         self.output = io.BytesIO()
 
     def test_write_paths_and_lines(self):
