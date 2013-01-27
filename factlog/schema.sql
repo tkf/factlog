@@ -6,7 +6,7 @@ create table access_log (
   file_exists integer not null default 1,
   program string,
   recorded timestamp default current_timestamp,
-  access_type string not null
+  access_type integer not null
 );
 
 drop table if exists factlog_info;
