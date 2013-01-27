@@ -81,16 +81,16 @@ class DataBase(object):
                 [file_path, file_point, access_type])
             db.commit()
 
-    @staticmethod
+    @classmethod
     def _script_search_file_log(
-            limit, activity_types, unique, include_glob, exclude_glob):
+            cls, limit, activity_types, unique, include_glob, exclude_glob):
         # FIXME: support `unique` (currently ignored)
         params = []
         conditions = []
         if activity_types is not None:
             conditions.append('access_type in ({0})'.format(
                 ', '.join(repeat('?', len(activity_types)))))
-            params.extend(activity_types)
+            params.extend(map(cls.access_type_to_int.get, activity_types))
 
         conditions.extend(concat_expr(
             'OR', repeat('glob(?, file_path)', len(include_glob))))

@@ -32,8 +32,10 @@ class TestDataBaseScript(unittest.TestCase):
             [50])
 
     def test_script_search_file_log_only_write(self):
+        atypes = ['write']
+        aints = list(map(self.dbclass.access_type_to_int.get, atypes))
         (sql, params) = self.script_search_file_log(
-            50, activity_types=['write'])
+            50, activity_types=atypes)
         self.assertEqual(
             sql,
             'SELECT file_path, file_point, MAX(recorded), access_type '
@@ -41,11 +43,13 @@ class TestDataBaseScript(unittest.TestCase):
             'WHERE access_type in (?) '
             'GROUP BY file_path '
             'ORDER BY recorded DESC LIMIT ?')
-        self.assertEqual(params, ['write', 50])
+        self.assertEqual(params, aints + [50])
 
     def test_script_search_file_log_write_or_open(self):
+        atypes = ['write', 'open']
+        aints = list(map(self.dbclass.access_type_to_int.get, atypes))
         (sql, params) = self.script_search_file_log(
-            50, activity_types=['write', 'open'])
+            50, activity_types=atypes)
         self.assertEqual(
             sql,
             'SELECT file_path, file_point, MAX(recorded), access_type '
@@ -53,7 +57,7 @@ class TestDataBaseScript(unittest.TestCase):
             'WHERE access_type in (?, ?) '
             'GROUP BY file_path '
             'ORDER BY recorded DESC LIMIT ?')
-        self.assertEqual(params, ['write', 'open', 50])
+        self.assertEqual(params, aints + [50])
 
     def test_script_search_file_log_include_glob(self):
         (sql, params) = self.script_search_file_log(
