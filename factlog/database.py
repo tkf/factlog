@@ -23,6 +23,8 @@ def concat_expr(operator, conditions):
 class DataBase(object):
 
     ACTIVITY_TYPES = ('write', 'open', 'close')
+    access_type_to_int = dict((a, i) for (i, a) in enumerate(ACTIVITY_TYPES))
+    int_to_access_type = dict(enumerate(ACTIVITY_TYPES))
 
     schemapath = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), 'schema.sql')
@@ -43,8 +45,9 @@ class DataBase(object):
             with open(self.schemapath) as f:
                 db.cursor().executescript(f.read())
             db.execute(
-                'INSERT INTO system_info (version) VALUES (?)',
-                [version])
+                'INSERT INTO factlog_info (factlog_version, schema_version) '
+                'VALUES (?, ?)',
+                [version, schema_version])
             db.commit()
 
     def record_file_log(self, file_path, activity_type, file_point=None):
@@ -67,15 +70,15 @@ class DataBase(object):
         #        the file is created at that time.
         # FIXME: Add more activities (if possible):
         #        create/delete/move/copy
-        assert activity_type in self.ACTIVITY_TYPES
+        access_type = self.access_type_to_int[activity_type]
         file_path = os.path.abspath(file_path)
         with self._get_db() as db:
             db.execute(
                 """
-                INSERT INTO file_log (file_path, file_point, activity_type)
+                INSERT INTO access_log (file_path, file_point, access_type)
                 VALUES (?, ?, ?)
                 """,
-                [file_path, file_point, activity_type])
+                [file_path, file_point, access_type])
             db.commit()
 
     @staticmethod
@@ -85,7 +88,7 @@ class DataBase(object):
         params = []
         conditions = []
         if activity_types is not None:
-            conditions.append('activity_type in ({0})'.format(
+            conditions.append('access_type in ({0})'.format(
                 ', '.join(repeat('?', len(activity_types)))))
             params.extend(activity_types)
 
@@ -100,13 +103,13 @@ class DataBase(object):
         else:
             where = ''
         if unique:
-            columns = 'file_path, file_point, MAX(recorded), activity_type'
+            columns = 'file_path, file_point, MAX(recorded), access_type'
             group_by = 'GROUP BY file_path '
         else:
-            columns = 'file_path, file_point, recorded, activity_type'
+            columns = 'file_path, file_point, recorded, access_type'
             group_by = ''
         sql = (
-            'SELECT {0} FROM file_log {1}{2}'
+            'SELECT {0} FROM access_log {1}{2}'
             'ORDER BY recorded DESC '
             'LIMIT ?'
         ).format(columns, where, group_by)
@@ -191,8 +194,9 @@ class DataBase(object):
         :rtype: list of AccessInfo
 
         """
+        i2at = self.int_to_access_type
         with self._get_db() as db:
             cursor = db.execute(*self._script_search_file_log(
                 limit, activity_types, unique, include_glob, exclude_glob))
-            for row in cursor:
-                yield AccessInfo(*row)
+            for (path, point, recorded, atype) in cursor:
+                yield AccessInfo(path, point, recorded, i2at[atype])
