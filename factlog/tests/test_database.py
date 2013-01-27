@@ -16,7 +16,8 @@ class TestDataBaseScript(unittest.TestCase):
     @classmethod
     def script_search_file_log(cls, limit, **kwds):
         setdefaults(kwds, access_types=None, unique=True,
-                    include_glob=[], exclude_glob=[], exists=None, program=[])
+                    include_glob=[], exclude_glob=[],
+                    file_exists=None, program=[])
         return cls.dbclass._script_search_file_log(limit, **kwds)
 
     def test_script_search_file_log_simple(self):
@@ -108,7 +109,7 @@ class TestDataBaseScript(unittest.TestCase):
 
     def test_script_search_file_log_exists(self):
         (sql, params) = self.script_search_file_log(
-            50, exists=True)
+            50, file_exists=True)
         self.assertEqual(
             sql,
             'SELECT file_path, file_point, MAX(recorded), access_type '
@@ -259,10 +260,10 @@ class TestInMemoryDataBase(unittest.TestCase):
         self.db.record_file_log(self.paths[1], 'write', file_exists=False)
         rows = self.search_file_log()
         self.assertEqual(len(rows), 2)
-        rows = self.search_file_log(exists=True)
+        rows = self.search_file_log(file_exists=True)
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0].path, self.paths[0])
-        rows = self.search_file_log(exists=False)
+        rows = self.search_file_log(file_exists=False)
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0].path, self.paths[1])
 
