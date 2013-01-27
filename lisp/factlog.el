@@ -108,8 +108,14 @@
 (declare-function helm "helm")
 (declare-function anything "anything")
 
+(defcustom factlog:list-args nil
+  "Arguments to be used when `helm-factlog-list' or
+`anything-factlog-list' is called.  See ``factlog list --help``
+for more information."
+  :group 'factlog)
+
 (defun factlog:list-call-process (buffer)
-  (factlog:call-process '("list") buffer))
+  (factlog:call-process (append '("list") factlog:list-args) buffer))
 
 (defun factlog:list-make-source (helm)
   (let ((get-buffer (intern (format "%s-candidate-buffer" helm))))
