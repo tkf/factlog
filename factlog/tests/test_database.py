@@ -106,6 +106,30 @@ class TestDataBaseScript(unittest.TestCase):
             'ORDER BY recorded DESC LIMIT ?')
         self.assertEqual(params, [50])
 
+    def test_script_search_file_log_exists(self):
+        (sql, params) = self.script_search_file_log(
+            50, exists=True)
+        self.assertEqual(
+            sql,
+            'SELECT file_path, file_point, MAX(recorded), access_type '
+            'FROM access_log '
+            'WHERE file_exists = ? '
+            'GROUP BY file_path '
+            'ORDER BY recorded DESC LIMIT ?')
+        self.assertEqual(params, [True, 50])
+
+    def test_script_search_file_log_program(self):
+        (sql, params) = self.script_search_file_log(
+            50, program=['emacs', 'vim'])
+        self.assertEqual(
+            sql,
+            'SELECT file_path, file_point, MAX(recorded), access_type '
+            'FROM access_log '
+            'WHERE (program = ? OR program = ?) '
+            'GROUP BY file_path '
+            'ORDER BY recorded DESC LIMIT ?')
+        self.assertEqual(params, ['emacs', 'vim', 50])
+
 
 class InMemoryDataBase(DataBase):
 
