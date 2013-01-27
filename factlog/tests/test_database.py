@@ -15,7 +15,7 @@ class TestDataBaseScript(unittest.TestCase):
 
     @classmethod
     def script_search_file_log(cls, limit, **kwds):
-        setdefaults(kwds, activity_types=None, unique=True,
+        setdefaults(kwds, access_types=None, unique=True,
                     include_glob=[], exclude_glob=[])
         return cls.dbclass._script_search_file_log(limit, **kwds)
 
@@ -35,7 +35,7 @@ class TestDataBaseScript(unittest.TestCase):
         atypes = ['write']
         aints = list(map(self.dbclass.access_type_to_int.get, atypes))
         (sql, params) = self.script_search_file_log(
-            50, activity_types=atypes)
+            50, access_types=atypes)
         self.assertEqual(
             sql,
             'SELECT file_path, file_point, MAX(recorded), access_type '
@@ -49,7 +49,7 @@ class TestDataBaseScript(unittest.TestCase):
         atypes = ['write', 'open']
         aints = list(map(self.dbclass.access_type_to_int.get, atypes))
         (sql, params) = self.script_search_file_log(
-            50, activity_types=atypes)
+            50, access_types=atypes)
         self.assertEqual(
             sql,
             'SELECT file_path, file_point, MAX(recorded), access_type '
@@ -164,11 +164,11 @@ class TestInMemoryDataBase(unittest.TestCase):
         self.db.record_file_log(self.paths[0], 'write')
         self.db.record_file_log(self.paths[1], 'open')
         self.db.record_file_log(self.paths[2], 'close')
-        rows = self.search_file_log(activity_types=['write'])
+        rows = self.search_file_log(access_types=['write'])
         self.assertEqual([i.path for i in rows], [self.paths[0]])
-        rows = self.search_file_log(activity_types=['open'])
+        rows = self.search_file_log(access_types=['open'])
         self.assertEqual([i.path for i in rows], [self.paths[1]])
-        rows = self.search_file_log(activity_types=['close'])
+        rows = self.search_file_log(access_types=['close'])
         self.assertEqual([i.path for i in rows], [self.paths[2]])
 
     def setup_search_uniquify(self):

@@ -16,7 +16,7 @@ def record_add_arguments(parser):
         'file_path',
         help="record an activity on this file.")
     parser.add_argument(
-        '--activity-type', '-a', default='write',
+        '--access-type', '-a', default='write',
         choices=DataBase.ACTIVITY_TYPES,
         help="activity on the file to record.")
     parser.add_argument(
@@ -24,13 +24,13 @@ def record_add_arguments(parser):
         help="point of cursor at the time of saving.")
 
 
-def record_run(file_path, file_point, activity_type):
+def record_run(file_path, file_point, access_type):
     """
     Record activities on file.
     """
     db = get_db()
     db.record_file_log(
-        file_path, file_point=file_point, activity_type=activity_type)
+        file_path, file_point=file_point, access_type=access_type)
 
 
 def list_add_arguments(parser):
@@ -39,7 +39,7 @@ def list_add_arguments(parser):
         '--limit', '-l', type=int, default=20,
         help="Maximum number of files to list.")
     parser.add_argument(
-        '--activity-type', '-a', dest='activity_types',
+        '--access-type', '-a', dest='access_types',
         action='append', choices=DataBase.ACTIVITY_TYPES,
         help="""
         Activity types to include.
@@ -125,7 +125,7 @@ def list_add_arguments(parser):
 
 
 def list_run(
-        limit, activity_types, unique, include_glob, exclude_glob,
+        limit, access_types, unique, include_glob, exclude_glob,
         under, relative, null, **kwds):
     """
     List recently accessed files.
@@ -133,7 +133,7 @@ def list_run(
     newline = '\0' if null else '\n'
     db = get_db()
     rows = db.search_file_log(
-        limit, activity_types, unique, include_glob, exclude_glob,
+        limit, access_types, unique, include_glob, exclude_glob,
         under, relative)
     write_listed_rows(rows, newline, **kwds)
 

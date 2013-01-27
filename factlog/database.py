@@ -50,7 +50,7 @@ class DataBase(object):
                 [version, schema_version])
             db.commit()
 
-    def record_file_log(self, file_path, activity_type, file_point=None):
+    def record_file_log(self, file_path, access_type, file_point=None):
         """
         Record file activity.
 
@@ -58,8 +58,8 @@ class DataBase(object):
         :arg      file_path: path to the file
         :type    file_point: int or None
         :arg     file_point: point of cursor at the time of saving.
-        :type activity_type: str
-        :arg  activity_type: one of 'write', 'open', 'close'
+        :type   access_type: str
+        :arg    access_type: one of 'write', 'open', 'close'
 
         `file_path` is converted to absolute path before saving
         to the database.
@@ -70,7 +70,7 @@ class DataBase(object):
         #        the file is created at that time.
         # FIXME: Add more activities (if possible):
         #        create/delete/move/copy
-        access_type = self.access_type_to_int[activity_type]
+        access_type = self.access_type_to_int[access_type]
         file_path = os.path.abspath(file_path)
         with self._get_db() as db:
             db.execute(
@@ -83,14 +83,14 @@ class DataBase(object):
 
     @classmethod
     def _script_search_file_log(
-            cls, limit, activity_types, unique, include_glob, exclude_glob):
+            cls, limit, access_types, unique, include_glob, exclude_glob):
         # FIXME: support `unique` (currently ignored)
         params = []
         conditions = []
-        if activity_types is not None:
+        if access_types is not None:
             conditions.append('access_type in ({0})'.format(
-                ', '.join(repeat('?', len(activity_types)))))
-            params.extend(map(cls.access_type_to_int.get, activity_types))
+                ', '.join(repeat('?', len(access_types)))))
+            params.extend(map(cls.access_type_to_int.get, access_types))
 
         conditions.extend(concat_expr(
             'OR', repeat('glob(?, file_path)', len(include_glob))))
@@ -121,11 +121,11 @@ class DataBase(object):
         Set default arguments for :meth:`search_file_log`.
         """
         @functools.wraps(func)
-        def wrapper(self, limit, activity_types=None, unique=True,
+        def wrapper(self, limit, access_types=None, unique=True,
                     include_glob=[], exclude_glob=[], only_existing=True,
                     under=[], relative=False):
             return func(
-                self, limit, activity_types, unique,
+                self, limit, access_types, unique,
                 include_glob, exclude_glob, under, relative,
                 only_existing=only_existing)
         return wrapper
@@ -149,13 +149,13 @@ class DataBase(object):
         Implement `under` and `relative` part for :meth:`search_file_log`.
         """
         @functools.wraps(func)
-        def wrapper(self, limit, activity_types, unique,
+        def wrapper(self, limit, access_types, unique,
                     include_glob, exclude_glob, under, relative):
             absunder = [os.path.join(os.path.abspath(p), "") for p in under]
             include_glob = include_glob + \
                            [os.path.join(p, "*") for p in absunder]
             iter_info = func(
-                self, limit, activity_types, unique,
+                self, limit, access_types, unique,
                 include_glob, exclude_glob)
             if relative:
                 return uniq(
@@ -169,14 +169,14 @@ class DataBase(object):
     @__wrap_search_file_log_exclude_non_existing_path
     @__wrap_search_file_log_for_under
     def search_file_log(
-            self, limit, activity_types, unique, include_glob, exclude_glob):
+            self, limit, access_types, unique, include_glob, exclude_glob):
         """
         Return an iterator which yields file access information.
 
         :type          limit: int
         :arg           limit: maximum number of files to list
-        :type activity_types: tuple
-        :arg  activity_types: subset of :attr:`ACTIVITY_TYPES`
+        :type   access_types: tuple
+        :arg    access_types: subset of :attr:`ACTIVITY_TYPES`
         :type         unique: bool
         :arg          unique: if true (default), strip off duplications
         :type   include_glob: list
@@ -197,6 +197,6 @@ class DataBase(object):
         i2at = self.int_to_access_type
         with self._get_db() as db:
             cursor = db.execute(*self._script_search_file_log(
-                limit, activity_types, unique, include_glob, exclude_glob))
+                limit, access_types, unique, include_glob, exclude_glob))
             for (path, point, recorded, atype) in cursor:
                 yield AccessInfo(path, point, recorded, i2at[atype])

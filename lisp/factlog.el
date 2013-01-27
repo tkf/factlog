@@ -61,12 +61,12 @@
 (defun factlog:deferred-process (&rest args)
   (apply #'deferred:process (append factlog:command args)))
 
-(defun factlog:record-current-file (activity-type)
+(defun factlog:record-current-file (access-type)
   (when (and buffer-file-name (recentf-include-p buffer-file-name)) ; [1]_
     (factlog:deferred-process
      "record"
      "--file-point" (format "%s" (point))
-     "--activity-type" activity-type
+     "--access-type" access-type
      buffer-file-name)))
 ;; .. [1] (recentf-include-p nil) returns t.
 ;;        So, let's check if it is non-nil first.
