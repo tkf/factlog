@@ -17,7 +17,7 @@ def record_add_arguments(parser):
         help="record an activity on this file.")
     parser.add_argument(
         '--access-type', '-a', default='write',
-        choices=DataBase.ACTIVITY_TYPES,
+        choices=DataBase.ACCESS_TYPES,
         help="how the file is accessed.")
     parser.add_argument(
         '--file-point', type=int,
@@ -40,7 +40,7 @@ def list_add_arguments(parser):
         help="Maximum number of files to list.")
     parser.add_argument(
         '--access-type', '-a', dest='access_types',
-        action='append', choices=DataBase.ACTIVITY_TYPES,
+        action='append', choices=DataBase.ACCESS_TYPES,
         help="""
         Access types to include.
         This option can be called multiple times.

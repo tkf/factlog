@@ -22,9 +22,9 @@ def concat_expr(operator, conditions):
 
 class DataBase(object):
 
-    ACTIVITY_TYPES = ('write', 'open', 'close')
-    access_type_to_int = dict((a, i) for (i, a) in enumerate(ACTIVITY_TYPES))
-    int_to_access_type = dict(enumerate(ACTIVITY_TYPES))
+    ACCESS_TYPES = ('write', 'open', 'close')
+    access_type_to_int = dict((a, i) for (i, a) in enumerate(ACCESS_TYPES))
+    int_to_access_type = dict(enumerate(ACCESS_TYPES))
 
     schemapath = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), 'schema.sql')
@@ -176,7 +176,7 @@ class DataBase(object):
         :type          limit: int
         :arg           limit: maximum number of files to list
         :type   access_types: tuple
-        :arg    access_types: subset of :attr:`ACTIVITY_TYPES`
+        :arg    access_types: subset of :attr:`ACCESS_TYPES`
         :type         unique: bool
         :arg          unique: if true (default), strip off duplications
         :type   include_glob: list
