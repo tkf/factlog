@@ -5,7 +5,9 @@ File title extractor.
 import os
 import re
 import ast
-from itertools import imap, ifilter, izip, tee
+from itertools import tee
+
+from .utils.py3compat import map, zip, filter
 
 
 def gene_iparse_underline_headings(symbols):
@@ -52,11 +54,11 @@ def first(iterative):
 
 
 def get_first_heading(lines, parsers):
-    lines = imap(str.rstrip, lines)
+    lines = map(str.rstrip, lines)
     iteratives = map(lambda p, ls: p(ls), parsers, tee(lines, len(parsers)))
-    candidates = first(ifilter(any, izip(*iteratives)))
+    candidates = first(filter(any, zip(*iteratives)))
     if candidates:
-        return first(ifilter(None, candidates))  # get non-None candidate
+        return first(filter(None, candidates))  # get non-None candidate
 
 
 def get_title_rst(path):

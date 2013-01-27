@@ -1,5 +1,7 @@
 import itertools
 
+from .py3compat import map
+
 
 def repeat(item, num):
     return itertools.islice(itertools.repeat(item), num)
@@ -13,7 +15,7 @@ def interleave(*iteratives):
     [1, None, 2, None, 3, None]
 
     """
-    iters = map(iter, iteratives)
+    iters = list(map(iter, iteratives))
     while True:
         for it in iters:
             yield next(it)
