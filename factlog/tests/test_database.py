@@ -194,3 +194,23 @@ class TestInMemoryDataBase(unittest.TestCase):
         paths_a = [os.path.relpath(p, self.root_a) for p in self.paths_a]
         rows = self.search_file_log(under=under, relative=True)
         self.assertEqual([i.showpath for i in rows], paths_a)
+
+    def test_search_include_glob(self):
+        self.setup_search_under()
+        paths = self.paths_a
+        rows = self.search_file_log(include_glob=['*ROOT-A*'])
+        self.assertEqual([i.showpath for i in rows], paths)
+
+    def test_search_exclude_glob(self):
+        self.setup_search_under()
+        paths = self.paths_a
+        rows = self.search_file_log(exclude_glob=['*ROOT-B*'])
+        self.assertEqual([i.showpath for i in rows], paths)
+
+    def test_search_complex_glob(self):
+        self.setup_search_under()
+        paths = self.paths_a[1:]
+        rows = self.search_file_log(
+            include_glob=['*DUMMY*', '*ROOT*'],
+            exclude_glob=['*ROOT-B*', '*0'])
+        self.assertEqual([i.showpath for i in rows], paths)
