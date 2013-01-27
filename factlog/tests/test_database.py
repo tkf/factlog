@@ -16,7 +16,7 @@ class TestDataBaseScript(unittest.TestCase):
     @classmethod
     def script_search_file_log(cls, limit, **kwds):
         setdefaults(kwds, access_types=None, unique=True,
-                    include_glob=[], exclude_glob=[])
+                    include_glob=[], exclude_glob=[], exists=None)
         return cls.dbclass._script_search_file_log(limit, **kwds)
 
     def test_script_search_file_log_simple(self):
@@ -229,3 +229,15 @@ class TestInMemoryDataBase(unittest.TestCase):
             include_glob=['*DUMMY*', '*ROOT*'],
             exclude_glob=['*ROOT-B*', '*0'])
         self.assertEqual([i.showpath for i in rows], paths)
+
+    def test_search_exists(self):
+        self.db.record_file_log(self.paths[0], 'write', file_exists=True)
+        self.db.record_file_log(self.paths[1], 'write', file_exists=False)
+        rows = self.search_file_log()
+        self.assertEqual(len(rows), 2)
+        rows = self.search_file_log(exists=True)
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0].path, self.paths[0])
+        rows = self.search_file_log(exists=False)
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0].path, self.paths[1])
