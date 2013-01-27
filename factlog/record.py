@@ -18,7 +18,7 @@ def record_add_arguments(parser):
     parser.add_argument(
         '--access-type', '-a', default='write',
         choices=DataBase.ACTIVITY_TYPES,
-        help="activity on the file to record.")
+        help="how the file is accessed.")
     parser.add_argument(
         '--file-point', type=int,
         help="point of cursor at the time of saving.")
@@ -42,7 +42,7 @@ def list_add_arguments(parser):
         '--access-type', '-a', dest='access_types',
         action='append', choices=DataBase.ACTIVITY_TYPES,
         help="""
-        Activity types to include.
+        Access types to include.
         This option can be called multiple times.
         Default is to include all activities.
         """)
@@ -76,7 +76,7 @@ def list_add_arguments(parser):
         help="""
         [WORK IN PROGRESS]
         Python-style string format.  {path}: file path; {point}:
-        cursor point; {recorded}: timestamp; {activity}: one of
+        cursor point; {recorded}: timestamp; {access}: one of
         'open', 'write' and 'close'; {id}: row id.
         """)
     parser.add_argument(
