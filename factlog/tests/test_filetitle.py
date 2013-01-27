@@ -99,7 +99,8 @@ class TestGetTitleNoFS(unittest.TestCase):
 
     def test_get_title_rst_underline_symbols(self):
         import re
-        symbols = re.findall('[!-/:-@[-`{-~]', ''.join(map(chr, range(128))))
+        symbols = re.findall(filetitle.NONALPHANUM7BIT,
+                             ''.join(map(chr, range(128))))
         for s in symbols:
             self.check_underline_title(s, filetitle.get_title_rst)
 

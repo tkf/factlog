@@ -39,10 +39,10 @@ def gene_iparse_prefix_headings(prefixes):
 
     return iparse_prefix_headings
 
-iparse_md_underline_headings = gene_iparse_underline_headings(r'[=\-]')
-iparse_rst_underline_headings = gene_iparse_underline_headings(
-    '[!-/:-@[-`{-~]')
+NONALPHANUM7BIT = '[!-/:-@[-`{-~]'
 # See also: docutils.parsers.rst.states.Body.pats['nonalphanum7bit']
+iparse_rst_underline_headings = gene_iparse_underline_headings(NONALPHANUM7BIT)
+iparse_md_underline_headings = gene_iparse_underline_headings(r'[=\-]')
 
 iparse_sharps_headings = gene_iparse_prefix_headings('#')
 iparse_asterisk_headings = gene_iparse_prefix_headings('*')
