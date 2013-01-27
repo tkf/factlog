@@ -1,10 +1,13 @@
 # Ad-hoc wrapper command for `factlog record'.
 # Usage:
-#    _factlog_record_wrapper COMMAND FILE [OPTIONS]
+#    factlog-record-wrapper COMMAND FILE [OPTIONS]
+# Examples:
+#    alias less="factlog-record-wrapper \\less"
+#    alias vim="factlog-record-wrapper \\vim"
 # Note that this wrapper does not work if the first option is not the
 # file to open.  Supporting all possible option will require more
 # dedicated handling than this.
-_factlog_record_wrapper(){
+factlog-record-wrapper(){
     local command="$1"
     local file="$2"
     local code
@@ -26,6 +29,3 @@ _factlog_record_wrapper(){
         "$command" "$file" "$@"
     fi
 }
-
-alias less="_factlog_record_wrapper \\less"
-alias vim="_factlog_record_wrapper \\vim"
