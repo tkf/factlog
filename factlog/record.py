@@ -66,6 +66,23 @@ def list_add_arguments(parser):
         Exclude paths that match to unix-style GLOB pattern.
         """)
     parser.add_argument(
+        '--program', default=[], action='append',
+        help="""
+        List of program to be used to access the file.
+        """)
+    parser.add_argument(
+        '--file-exists',
+        dest='file_exists', default=None, action='store_true',
+        help="""
+        Include only files existed at *recording* time.
+        """)
+    parser.add_argument(
+        '--no-file-exists',
+        dest='file_exists', default=None, action='store_false',
+        help="""
+        Include only files not existed at *recording* time.
+        """)
+    parser.add_argument(
         '--under', metavar='PATH', default=[], action='append',
         help="""
         Show only paths under PATH.  See also: --relative.
@@ -130,6 +147,7 @@ def list_add_arguments(parser):
 
 def list_run(
         limit, access_types, unique, include_glob, exclude_glob,
+        file_exists, program,
         under, relative, null, **kwds):
     """
     List recently accessed files.
@@ -138,6 +156,7 @@ def list_run(
     db = get_db()
     rows = db.search_file_log(
         limit, access_types, unique, include_glob, exclude_glob,
+        file_exists, program,
         under, relative)
     write_listed_rows(rows, newline, **kwds)
 
