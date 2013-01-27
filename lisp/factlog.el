@@ -52,6 +52,10 @@
   "Command to run factlog CLI."
   :group 'factlog)
 
+(defcustom factlog:program-name "emacs"
+  "Name of the editor to record."
+  :group 'factlog)
+
 (defun factlog:call-process (args buffer)
   (let* ((command (append factlog:command args))
          (program (car command))
@@ -61,12 +65,13 @@
 (defun factlog:deferred-process (&rest args)
   (apply #'deferred:process (append factlog:command args)))
 
-(defun factlog:record-current-file (activity-type)
+(defun factlog:record-current-file (access-type)
   (when (and buffer-file-name (recentf-include-p buffer-file-name)) ; [1]_
     (factlog:deferred-process
      "record"
      "--file-point" (format "%s" (point))
-     "--activity-type" activity-type
+     "--access-type" access-type
+     "--program" factlog:program-name
      buffer-file-name)))
 ;; .. [1] (recentf-include-p nil) returns t.
 ;;        So, let's check if it is non-nil first.

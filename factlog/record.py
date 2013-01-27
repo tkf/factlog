@@ -16,21 +16,25 @@ def record_add_arguments(parser):
         'file_path',
         help="record an activity on this file.")
     parser.add_argument(
-        '--activity-type', '-a', default='write',
-        choices=DataBase.ACTIVITY_TYPES,
-        help="activity on the file to record.")
+        '--access-type', '-a', default='write',
+        choices=DataBase.ACCESS_TYPES,
+        help="how the file is accessed.")
     parser.add_argument(
         '--file-point', type=int,
         help="point of cursor at the time of saving.")
+    parser.add_argument(
+        '--program',
+        help="program used for accessing file.")
 
 
-def record_run(file_path, file_point, activity_type):
+def record_run(file_path, file_point, access_type, program):
     """
     Record activities on file.
     """
     db = get_db()
     db.record_file_log(
-        file_path, file_point=file_point, activity_type=activity_type)
+        file_path, file_point=file_point, access_type=access_type,
+        program=program)
 
 
 def list_add_arguments(parser):
@@ -39,10 +43,10 @@ def list_add_arguments(parser):
         '--limit', '-l', type=int, default=20,
         help="Maximum number of files to list.")
     parser.add_argument(
-        '--activity-type', '-a', dest='activity_types',
-        action='append', choices=DataBase.ACTIVITY_TYPES,
+        '--access-type', '-a', dest='access_types',
+        action='append', choices=DataBase.ACCESS_TYPES,
         help="""
-        Activity types to include.
+        Access types to include.
         This option can be called multiple times.
         Default is to include all activities.
         """)
@@ -62,6 +66,23 @@ def list_add_arguments(parser):
         Exclude paths that match to unix-style GLOB pattern.
         """)
     parser.add_argument(
+        '--program', default=[], action='append',
+        help="""
+        List of program to be used to access the file.
+        """)
+    parser.add_argument(
+        '--file-exists',
+        dest='file_exists', default=None, action='store_true',
+        help="""
+        Include only files existed at *recording* time.
+        """)
+    parser.add_argument(
+        '--no-file-exists',
+        dest='file_exists', default=None, action='store_false',
+        help="""
+        Include only files not existed at *recording* time.
+        """)
+    parser.add_argument(
         '--under', metavar='PATH', default=[], action='append',
         help="""
         Show only paths under PATH.  See also: --relative.
@@ -76,7 +97,7 @@ def list_add_arguments(parser):
         help="""
         [WORK IN PROGRESS]
         Python-style string format.  {path}: file path; {point}:
-        cursor point; {recorded}: timestamp; {activity}: one of
+        cursor point; {recorded}: timestamp; {access}: one of
         'open', 'write' and 'close'; {id}: row id.
         """)
     parser.add_argument(
@@ -125,7 +146,8 @@ def list_add_arguments(parser):
 
 
 def list_run(
-        limit, activity_types, unique, include_glob, exclude_glob,
+        limit, access_types, unique, include_glob, exclude_glob,
+        file_exists, program,
         under, relative, null, **kwds):
     """
     List recently accessed files.
@@ -133,8 +155,10 @@ def list_run(
     newline = '\0' if null else '\n'
     db = get_db()
     rows = db.search_file_log(
-        limit, activity_types, unique, include_glob, exclude_glob,
-        under, relative)
+        limit=limit, access_types=access_types, unique=unique,
+        include_glob=include_glob, exclude_glob=exclude_glob,
+        file_exists=file_exists, program=program,
+        under=under, relative=relative)
     write_listed_rows(rows, newline, **kwds)
 
 
