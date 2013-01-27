@@ -16,7 +16,7 @@ class TestDataBaseScript(unittest.TestCase):
     @classmethod
     def script_search_file_log(cls, limit, **kwds):
         setdefaults(kwds, access_types=None, unique=True,
-                    include_glob=[], exclude_glob=[], exists=None)
+                    include_glob=[], exclude_glob=[], exists=None, program=[])
         return cls.dbclass._script_search_file_log(limit, **kwds)
 
     def test_script_search_file_log_simple(self):
@@ -241,3 +241,19 @@ class TestInMemoryDataBase(unittest.TestCase):
         rows = self.search_file_log(exists=False)
         self.assertEqual(len(rows), 1)
         self.assertEqual(rows[0].path, self.paths[1])
+
+    def test_search_program(self):
+        self.db.record_file_log(self.paths[0], 'write', program='emacs')
+        self.db.record_file_log(self.paths[1], 'write', program='less')
+        rows = self.search_file_log()
+        self.assertEqual(len(rows), 2)
+        rows = self.search_file_log(program=['emacs'])
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0].path, self.paths[0])
+        rows = self.search_file_log(program=['less'])
+        self.assertEqual(len(rows), 1)
+        self.assertEqual(rows[0].path, self.paths[1])
+        rows = self.search_file_log(program=['emacs', 'less'])
+        self.assertEqual([i.showpath for i in rows], self.paths[:2])
+        rows = self.search_file_log(program=['vim'])
+        self.assertEqual(rows, [])

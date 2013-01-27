@@ -88,7 +88,7 @@ class DataBase(object):
     @classmethod
     def _script_search_file_log(
             cls, limit, access_types, unique, include_glob, exclude_glob,
-            exists):
+            exists, program):
         # FIXME: support `unique` (currently ignored)
         params = []
         conditions = []
@@ -106,6 +106,10 @@ class DataBase(object):
         conditions.extend(repeat('NOT glob(?, file_path)', len(exclude_glob)))
         params.extend(include_glob)
         params.extend(exclude_glob)
+
+        conditions.extend(concat_expr(
+            'OR', repeat('program = ?', len(program))))
+        params.extend(program)
 
         if conditions:
             where = 'WHERE {0} '.format(" AND ".join(conditions))
@@ -131,12 +135,12 @@ class DataBase(object):
         """
         @functools.wraps(func)
         def wrapper(self, limit, access_types=None, unique=True,
-                    include_glob=[], exclude_glob=[], exists=None,
+                    include_glob=[], exclude_glob=[], exists=None, program=[],
                     under=[], relative=False,
                     only_existing=True):
             return func(
                 self, limit, access_types, unique,
-                include_glob, exclude_glob, exists,
+                include_glob, exclude_glob, exists, program,
                 under, relative,
                 only_existing=only_existing)
         return wrapper
@@ -161,14 +165,14 @@ class DataBase(object):
         """
         @functools.wraps(func)
         def wrapper(self, limit, access_types, unique,
-                    include_glob, exclude_glob, exists,
+                    include_glob, exclude_glob, exists, program,
                     under, relative):
             absunder = [os.path.join(os.path.abspath(p), "") for p in under]
             include_glob = include_glob + \
                            [os.path.join(p, "*") for p in absunder]
             iter_info = func(
                 self, limit, access_types, unique,
-                include_glob, exclude_glob, exists)
+                include_glob, exclude_glob, exists, program)
             if relative:
                 return uniq(
                     iter_info,
@@ -182,7 +186,7 @@ class DataBase(object):
     @__wrap_search_file_log_for_under
     def search_file_log(
             self, limit, access_types, unique, include_glob, exclude_glob,
-            exists):
+            exists, program):
         """
         Return an iterator which yields file access information.
 
@@ -198,6 +202,8 @@ class DataBase(object):
         :arg    exclude_glob: a list of glob expression
         :type         exists: bool or None
         :arg          exists: whether the file exists at *recording* time
+        :type        program: list
+        :arg         program: a list of string (program name)
 
         :type          under: list of str
         :arg           under: paths given by --under
@@ -213,6 +219,6 @@ class DataBase(object):
         with self._get_db() as db:
             cursor = db.execute(*self._script_search_file_log(
                 limit, access_types, unique, include_glob, exclude_glob,
-                exists))
+                exists, program))
             for (path, point, recorded, atype) in cursor:
                 yield AccessInfo(path, point, recorded, i2at[atype])
