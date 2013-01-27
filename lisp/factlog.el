@@ -48,7 +48,9 @@
   "Full path to FactLog CLI script.")
 
 (defcustom factlog:command
-  (list "python" factlog:cli-script)
+  (if (executable-find "factlog")
+      (list "factlog")
+    (list "python" factlog:cli-script))
   "Command to run factlog CLI."
   :group 'factlog)
 
