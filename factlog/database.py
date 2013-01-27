@@ -138,10 +138,13 @@ class DataBase(object):
                     include_glob=[], exclude_glob=[], exists=None, program=[],
                     under=[], relative=False,
                     only_existing=True):
+            # These keyword arguments are modified by wrappers and
+            # then finally passed to :meth:`_script_search_file_log`.
             return func(
-                self, limit, access_types, unique,
-                include_glob, exclude_glob, exists, program,
-                under, relative,
+                self, limit=limit, access_types=access_types, unique=unique,
+                include_glob=include_glob, exclude_glob=exclude_glob,
+                exists=exists, program=program,
+                under=under, relative=relative,
                 only_existing=only_existing)
         return wrapper
 
@@ -150,9 +153,9 @@ class DataBase(object):
         Filter out rows for non-existing path.
         """
         @functools.wraps(func)
-        def wrapper(self, *args, **kwds):
+        def wrapper(self, **kwds):
             only_existing = kwds.pop('only_existing')
-            iter_info = func(self, *args, **kwds)
+            iter_info = func(self, **kwds)
             if only_existing:
                 return (i for i in iter_info if os.path.exists(i.path))
             else:
@@ -164,15 +167,11 @@ class DataBase(object):
         Implement `under` and `relative` part for :meth:`search_file_log`.
         """
         @functools.wraps(func)
-        def wrapper(self, limit, access_types, unique,
-                    include_glob, exclude_glob, exists, program,
-                    under, relative):
+        def wrapper(self, under, relative, include_glob, **kwds):
             absunder = [os.path.join(os.path.abspath(p), "") for p in under]
             include_glob = include_glob + \
                            [os.path.join(p, "*") for p in absunder]
-            iter_info = func(
-                self, limit, access_types, unique,
-                include_glob, exclude_glob, exists, program)
+            iter_info = func(self, include_glob=include_glob, **kwds)
             if relative:
                 return uniq(
                     iter_info,
@@ -184,9 +183,7 @@ class DataBase(object):
     @__wrap_search_file_log_defaults
     @__wrap_search_file_log_exclude_non_existing_path
     @__wrap_search_file_log_for_under
-    def search_file_log(
-            self, limit, access_types, unique, include_glob, exclude_glob,
-            exists, program):
+    def search_file_log(self, **kwds):
         """
         Return an iterator which yields file access information.
 
@@ -217,8 +214,6 @@ class DataBase(object):
         """
         i2at = self.int_to_access_type
         with self._get_db() as db:
-            cursor = db.execute(*self._script_search_file_log(
-                limit, access_types, unique, include_glob, exclude_glob,
-                exists, program))
+            cursor = db.execute(*self._script_search_file_log(**kwds))
             for (path, point, recorded, atype) in cursor:
                 yield AccessInfo(path, point, recorded, i2at[atype])
