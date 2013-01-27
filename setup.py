@@ -1,4 +1,4 @@
-from distutils.core import setup
+from setuptools import setup
 
 import factlog
 
@@ -20,4 +20,7 @@ setup(
     install_requires=[
         'argparse',
     ],
+    entry_points={
+        'console_scripts': ['factlog = factlog.cli:main'],
+    },
 )
