@@ -52,6 +52,10 @@
   "Command to run factlog CLI."
   :group 'factlog)
 
+(defcustom factlog:program-name "emacs"
+  "Name of the editor to record."
+  :group 'factlog)
+
 (defun factlog:call-process (args buffer)
   (let* ((command (append factlog:command args))
          (program (car command))
@@ -67,6 +71,7 @@
      "record"
      "--file-point" (format "%s" (point))
      "--access-type" access-type
+     "--program" factlog:program-name
      buffer-file-name)))
 ;; .. [1] (recentf-include-p nil) returns t.
 ;;        So, let's check if it is non-nil first.
