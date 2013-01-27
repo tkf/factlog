@@ -2,10 +2,16 @@ import unittest
 import textwrap
 import io
 
+from ..utils.py3compat import PY3
 from .test_accessinfo import MockedAccessInfo
 
 
 class TestWriteListedRows(unittest.TestCase):
+
+    if PY3:
+        OutputIO = io.StringIO
+    else:
+        OutputIO = io.BytesIO
 
     def gene_lines_at_point(self, *args):
         return [(i, 'LINE AT POINT') for i in range(*args)]
@@ -16,7 +22,7 @@ class TestWriteListedRows(unittest.TestCase):
             ai('PATH-A', lines_at_point=self.gene_lines_at_point(2)),
             ai('PATH-B', lines_at_point=self.gene_lines_at_point(1)),
         ]
-        self.output = io.BytesIO()
+        self.output = self.OutputIO()
         self.output.close = lambda *_: None
 
     def write_listed_rows(

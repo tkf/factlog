@@ -5,7 +5,9 @@ File title extractor.
 import os
 import re
 import ast
-from itertools import imap, ifilter, izip, tee
+from itertools import tee
+
+from .utils.py3compat import map, zip, filter
 
 
 def gene_iparse_underline_headings(symbols):
@@ -13,7 +15,7 @@ def gene_iparse_underline_headings(symbols):
 
     def iparse_underline_headings(lines):
         lines = iter(lines)
-        previous = lines.next()
+        previous = next(lines)
         yield
         for line in lines:
             if underline_re.match(line.rstrip()):
@@ -25,25 +27,25 @@ def gene_iparse_underline_headings(symbols):
     return iparse_underline_headings
 
 
-def gene_iparse_prefix_headings(regexp):
-    prefix_re = re.compile(r'^{0} .+'.format(regexp))
+def gene_iparse_prefix_headings(prefixes):
+    prefix_re = re.compile(r'^{0} .+'.format(re.escape(prefixes)))
 
     def iparse_prefix_headings(lines):
         for line in lines:
             if prefix_re.match(line):
-                yield line.strip("#").strip()
+                yield line.strip(prefixes).strip()
             else:
                 yield
 
     return iparse_prefix_headings
 
-iparse_md_underline_headings = gene_iparse_underline_headings(r'[=\-]')
-iparse_rst_underline_headings = gene_iparse_underline_headings(
-    '[!-/:-@[-`{-~]')
+NONALPHANUM7BIT = '[!-/:-@[-`{-~]'
 # See also: docutils.parsers.rst.states.Body.pats['nonalphanum7bit']
+iparse_rst_underline_headings = gene_iparse_underline_headings(NONALPHANUM7BIT)
+iparse_md_underline_headings = gene_iparse_underline_headings(r'[=\-]')
 
-iparse_sharps_headings = gene_iparse_prefix_headings('#{1,6}')
-iparse_asterisk_headings = gene_iparse_prefix_headings(r'\*+')
+iparse_sharps_headings = gene_iparse_prefix_headings('#')
+iparse_asterisk_headings = gene_iparse_prefix_headings('*')
 
 
 def first(iterative):
@@ -52,37 +54,33 @@ def first(iterative):
 
 
 def get_first_heading(lines, parsers):
-    lines = imap(str.rstrip, lines)
+    lines = map(str.rstrip, lines)
     iteratives = map(lambda p, ls: p(ls), parsers, tee(lines, len(parsers)))
-    candidates = first(ifilter(any, izip(*iteratives)))
+    candidates = first(filter(any, zip(*iteratives)))
     if candidates:
-        return first(ifilter(None, candidates))  # get non-None candidate
+        return first(filter(None, candidates))  # get non-None candidate
 
 
-def get_title_rst(path):
-    return get_first_heading(
-        open(path).xreadlines(),
-        [iparse_rst_underline_headings])
+def get_title_rst(fp):
+    parsers = [iparse_rst_underline_headings]
+    return get_first_heading(fp, parsers)
 
 
-def get_title_md(path):
-    return get_first_heading(
-        open(path).xreadlines(),
-        [iparse_md_underline_headings, iparse_sharps_headings])
+def get_title_md(fp):
+    parsers = [iparse_md_underline_headings, iparse_sharps_headings]
+    return get_first_heading(fp, parsers)
 
 
-def get_title_org(path):
-    return get_first_heading(
-        open(path).xreadlines(),
-        [iparse_asterisk_headings])
+def get_title_org(fp):
+    parsers = [iparse_asterisk_headings]
+    return get_first_heading(fp, parsers)
 
 
-def get_title_py(path):
+def get_title_py(fp):
     # FIXME: Find more quick way to get file title of Python file.
     # Parsing python file using ast module can be pretty slow because
     # it parses entire file.
-    with open(path) as f:
-        node = ast.parse(f.read())
+    node = ast.parse(fp.read())
     doc = ast.get_docstring(node)
     if doc is None:
         return None
@@ -110,7 +108,8 @@ def get_title(path):
     ext = os.path.splitext(path)[1].lower()[1:]
     func = dispatcher.get(ext)
     if func:
-        return func(path)
+        with open(path) as fp:
+            return func(fp)
 
 
 def write_path_and_title(file, path, showpath, newline, separator,

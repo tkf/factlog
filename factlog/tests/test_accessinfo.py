@@ -2,6 +2,7 @@ import unittest
 import textwrap
 import io
 
+from ..utils.py3compat import PY3
 from ..accessinfo import AccessInfo
 
 
@@ -28,9 +29,14 @@ class MockedAccessInfo(AccessInfo):
 
 class TestAccessInfo(unittest.TestCase):
 
+    if PY3:
+        OutputIO = io.StringIO
+    else:
+        OutputIO = io.BytesIO
+
     def setUp(self):
         self.info = MockedAccessInfo('PATH')
-        self.output = io.BytesIO()
+        self.output = self.OutputIO()
 
     def test_write_paths_and_lines(self):
         pre_lines = 2

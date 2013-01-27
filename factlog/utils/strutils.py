@@ -1,4 +1,4 @@
-from string import count
+from .py3compat import count, zip
 
 
 def remove_prefix(prefixes, string):
@@ -61,13 +61,13 @@ def get_lines_at_point(string, point, pre_lines=0, post_lines=0):
     ... 7
     ... 9
     ... '''
-    >>> get_lines_at_point(string, 5)
+    >>> list(get_lines_at_point(string, 5))
     [(3, '5')]
-    >>> get_lines_at_point(string, 5, 2, 1)
+    >>> list(get_lines_at_point(string, 5, 2, 1))
     [(1, '1'), (2, '3'), (3, '5'), (4, '7')]
-    >>> get_lines_at_point(string, 3, 2)  # not enough previous lines
+    >>> list(get_lines_at_point(string, 3, 2))  # not enough previous lines
     [(1, '1'), (2, '3')]
-    >>> get_lines_at_point(string, 7, 0, 2)  # not enough post lines
+    >>> list(get_lines_at_point(string, 7, 0, 2))  # not enough post lines
     [(4, '7'), (5, '9')]
 
     """
