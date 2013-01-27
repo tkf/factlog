@@ -15,7 +15,7 @@ def gene_iparse_underline_headings(symbols):
 
     def iparse_underline_headings(lines):
         lines = iter(lines)
-        previous = lines.next()
+        previous = next(lines)
         yield
         for line in lines:
             if underline_re.match(line.rstrip()):
@@ -61,30 +61,26 @@ def get_first_heading(lines, parsers):
         return first(filter(None, candidates))  # get non-None candidate
 
 
-def get_title_rst(path):
-    return get_first_heading(
-        open(path).xreadlines(),
-        [iparse_rst_underline_headings])
+def get_title_rst(fp):
+    parsers = [iparse_rst_underline_headings]
+    return get_first_heading(fp, parsers)
 
 
-def get_title_md(path):
-    return get_first_heading(
-        open(path).xreadlines(),
-        [iparse_md_underline_headings, iparse_sharps_headings])
+def get_title_md(fp):
+    parsers = [iparse_md_underline_headings, iparse_sharps_headings]
+    return get_first_heading(fp, parsers)
 
 
-def get_title_org(path):
-    return get_first_heading(
-        open(path).xreadlines(),
-        [iparse_asterisk_headings])
+def get_title_org(fp):
+    parsers = [iparse_asterisk_headings]
+    return get_first_heading(fp, parsers)
 
 
-def get_title_py(path):
+def get_title_py(fp):
     # FIXME: Find more quick way to get file title of Python file.
     # Parsing python file using ast module can be pretty slow because
     # it parses entire file.
-    with open(path) as f:
-        node = ast.parse(f.read())
+    node = ast.parse(fp.read())
     doc = ast.get_docstring(node)
     if doc is None:
         return None
@@ -112,7 +108,8 @@ def get_title(path):
     ext = os.path.splitext(path)[1].lower()[1:]
     func = dispatcher.get(ext)
     if func:
-        return func(path)
+        with open(path) as fp:
+            return func(fp)
 
 
 def write_path_and_title(file, path, showpath, newline, separator,
