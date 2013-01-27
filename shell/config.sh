@@ -20,10 +20,10 @@ factlog-record-wrapper(){
     shift 2
     if [ -e "$file" ]
     then
-        factlog record -a open "$file"
+        factlog record -a open --program "$command" "$file"
         "$command" "$file" "$@"
         code="$?"
-        factlog record -a close "$file"
+        factlog record -a close --program "$command" "$file"
         return $code
     else
         "$command" "$file" "$@"
