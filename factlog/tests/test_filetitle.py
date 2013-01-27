@@ -1,5 +1,8 @@
 import unittest
+import textwrap
+import io
 
+from ..utils.py3compat import PY3
 from .. import filetitle
 
 
@@ -15,7 +18,6 @@ class TestGetTitle(unittest.TestCase):
 
     def create_file(self, file_name, content):
         import os
-        import textwrap
         path = os.path.join(self.rootdir, file_name)
         with open(path, 'wt') as fp:
             fp.write(textwrap.dedent(content))
@@ -62,3 +64,45 @@ class TestGetTitle(unittest.TestCase):
             '''Title'''
             """)
         self.assertEqual(filetitle.get_title(path), 'Title')
+
+
+class TestGetTitleNoFS(unittest.TestCase):
+
+    if PY3:
+        InMemoryIO = io.StringIO
+    else:
+        InMemoryIO = io.BytesIO
+
+    def check_get_title(self, content, title, get_title):
+        self.fp = fp = self.InMemoryIO()
+        fp.write(textwrap.dedent(content))
+        fp.seek(0)
+        self.assertEqual(get_title(fp), title)
+
+    def check_underline_title(self, underline_symbol, get_title):
+        """
+        Check underline-based title format.
+
+        Create a file-like object containing the following content
+        and run `get_title` on it to see if it returns 'Title'.::
+
+           Title
+           xxxxx
+
+        where ``x = underline_symbol``.
+
+        """
+        title = 'Title'
+        underline = underline_symbol * len(title)
+        content = '\n'.join([title, underline])
+        self.check_get_title(content, title, get_title)
+
+    def test_get_title_rst_underline_symbols(self):
+        import re
+        symbols = re.findall('[!-/:-@[-`{-~]', ''.join(map(chr, range(128))))
+        for s in symbols:
+            self.check_underline_title(s, filetitle.get_title_rst)
+
+    def test_get_title_md_underline_symbols(self):
+        for s in '=-':
+            self.check_underline_title(s, filetitle.get_title_md)
