@@ -30,11 +30,20 @@ class TestGetTitle(unittest.TestCase):
             """)
         self.assertEqual(filetitle.get_title(path), 'Title')
 
-    def test_md_title(self):
+    def test_md_title_sharp(self):
         path = self.create_file(
             'test.md',
             """
             # Title
+            """)
+        self.assertEqual(filetitle.get_title(path), 'Title')
+
+    def test_md_title_underline(self):
+        path = self.create_file(
+            'test.md',
+            """
+            Title
+            =====
             """)
         self.assertEqual(filetitle.get_title(path), 'Title')
 
