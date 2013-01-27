@@ -16,21 +16,21 @@ def record_add_arguments(parser):
         'file_path',
         help="record an activity on this file.")
     parser.add_argument(
-        '--activity-type', '-a', default='write',
-        choices=DataBase.ACTIVITY_TYPES,
-        help="activity on the file to record.")
+        '--access-type', '-a', default='write',
+        choices=DataBase.ACCESS_TYPES,
+        help="how the file is accessed.")
     parser.add_argument(
         '--file-point', type=int,
         help="point of cursor at the time of saving.")
 
 
-def record_run(file_path, file_point, activity_type):
+def record_run(file_path, file_point, access_type):
     """
     Record activities on file.
     """
     db = get_db()
     db.record_file_log(
-        file_path, file_point=file_point, activity_type=activity_type)
+        file_path, file_point=file_point, access_type=access_type)
 
 
 def list_add_arguments(parser):
@@ -39,10 +39,10 @@ def list_add_arguments(parser):
         '--limit', '-l', type=int, default=20,
         help="Maximum number of files to list.")
     parser.add_argument(
-        '--activity-type', '-a', dest='activity_types',
-        action='append', choices=DataBase.ACTIVITY_TYPES,
+        '--access-type', '-a', dest='access_types',
+        action='append', choices=DataBase.ACCESS_TYPES,
         help="""
-        Activity types to include.
+        Access types to include.
         This option can be called multiple times.
         Default is to include all activities.
         """)
@@ -76,7 +76,7 @@ def list_add_arguments(parser):
         help="""
         [WORK IN PROGRESS]
         Python-style string format.  {path}: file path; {point}:
-        cursor point; {recorded}: timestamp; {activity}: one of
+        cursor point; {recorded}: timestamp; {access}: one of
         'open', 'write' and 'close'; {id}: row id.
         """)
     parser.add_argument(
@@ -125,7 +125,7 @@ def list_add_arguments(parser):
 
 
 def list_run(
-        limit, activity_types, unique, include_glob, exclude_glob,
+        limit, access_types, unique, include_glob, exclude_glob,
         under, relative, null, **kwds):
     """
     List recently accessed files.
@@ -133,7 +133,7 @@ def list_run(
     newline = '\0' if null else '\n'
     db = get_db()
     rows = db.search_file_log(
-        limit, activity_types, unique, include_glob, exclude_glob,
+        limit, access_types, unique, include_glob, exclude_glob,
         under, relative)
     write_listed_rows(rows, newline, **kwds)
 

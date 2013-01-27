@@ -22,7 +22,9 @@ def concat_expr(operator, conditions):
 
 class DataBase(object):
 
-    ACTIVITY_TYPES = ('write', 'open', 'close')
+    ACCESS_TYPES = ('write', 'open', 'close')
+    access_type_to_int = dict((a, i) for (i, a) in enumerate(ACCESS_TYPES))
+    int_to_access_type = dict(enumerate(ACCESS_TYPES))
 
     schemapath = os.path.join(
         os.path.dirname(os.path.abspath(__file__)), 'schema.sql')
@@ -43,11 +45,12 @@ class DataBase(object):
             with open(self.schemapath) as f:
                 db.cursor().executescript(f.read())
             db.execute(
-                'INSERT INTO system_info (version) VALUES (?)',
-                [version])
+                'INSERT INTO factlog_info (factlog_version, schema_version) '
+                'VALUES (?, ?)',
+                [version, schema_version])
             db.commit()
 
-    def record_file_log(self, file_path, activity_type, file_point=None):
+    def record_file_log(self, file_path, access_type, file_point=None):
         """
         Record file activity.
 
@@ -55,8 +58,8 @@ class DataBase(object):
         :arg      file_path: path to the file
         :type    file_point: int or None
         :arg     file_point: point of cursor at the time of saving.
-        :type activity_type: str
-        :arg  activity_type: one of 'write', 'open', 'close'
+        :type   access_type: str
+        :arg    access_type: one of 'write', 'open', 'close'
 
         `file_path` is converted to absolute path before saving
         to the database.
@@ -67,27 +70,27 @@ class DataBase(object):
         #        the file is created at that time.
         # FIXME: Add more activities (if possible):
         #        create/delete/move/copy
-        assert activity_type in self.ACTIVITY_TYPES
+        access_type = self.access_type_to_int[access_type]
         file_path = os.path.abspath(file_path)
         with self._get_db() as db:
             db.execute(
                 """
-                INSERT INTO file_log (file_path, file_point, activity_type)
+                INSERT INTO access_log (file_path, file_point, access_type)
                 VALUES (?, ?, ?)
                 """,
-                [file_path, file_point, activity_type])
+                [file_path, file_point, access_type])
             db.commit()
 
-    @staticmethod
+    @classmethod
     def _script_search_file_log(
-            limit, activity_types, unique, include_glob, exclude_glob):
+            cls, limit, access_types, unique, include_glob, exclude_glob):
         # FIXME: support `unique` (currently ignored)
         params = []
         conditions = []
-        if activity_types is not None:
-            conditions.append('activity_type in ({0})'.format(
-                ', '.join(repeat('?', len(activity_types)))))
-            params.extend(activity_types)
+        if access_types is not None:
+            conditions.append('access_type in ({0})'.format(
+                ', '.join(repeat('?', len(access_types)))))
+            params.extend(map(cls.access_type_to_int.get, access_types))
 
         conditions.extend(concat_expr(
             'OR', repeat('glob(?, file_path)', len(include_glob))))
@@ -100,13 +103,13 @@ class DataBase(object):
         else:
             where = ''
         if unique:
-            columns = 'file_path, file_point, MAX(recorded), activity_type'
+            columns = 'file_path, file_point, MAX(recorded), access_type'
             group_by = 'GROUP BY file_path '
         else:
-            columns = 'file_path, file_point, recorded, activity_type'
+            columns = 'file_path, file_point, recorded, access_type'
             group_by = ''
         sql = (
-            'SELECT {0} FROM file_log {1}{2}'
+            'SELECT {0} FROM access_log {1}{2}'
             'ORDER BY recorded DESC '
             'LIMIT ?'
         ).format(columns, where, group_by)
@@ -118,11 +121,11 @@ class DataBase(object):
         Set default arguments for :meth:`search_file_log`.
         """
         @functools.wraps(func)
-        def wrapper(self, limit, activity_types=None, unique=True,
+        def wrapper(self, limit, access_types=None, unique=True,
                     include_glob=[], exclude_glob=[], only_existing=True,
                     under=[], relative=False):
             return func(
-                self, limit, activity_types, unique,
+                self, limit, access_types, unique,
                 include_glob, exclude_glob, under, relative,
                 only_existing=only_existing)
         return wrapper
@@ -146,13 +149,13 @@ class DataBase(object):
         Implement `under` and `relative` part for :meth:`search_file_log`.
         """
         @functools.wraps(func)
-        def wrapper(self, limit, activity_types, unique,
+        def wrapper(self, limit, access_types, unique,
                     include_glob, exclude_glob, under, relative):
             absunder = [os.path.join(os.path.abspath(p), "") for p in under]
             include_glob = include_glob + \
                            [os.path.join(p, "*") for p in absunder]
             iter_info = func(
-                self, limit, activity_types, unique,
+                self, limit, access_types, unique,
                 include_glob, exclude_glob)
             if relative:
                 return uniq(
@@ -166,14 +169,14 @@ class DataBase(object):
     @__wrap_search_file_log_exclude_non_existing_path
     @__wrap_search_file_log_for_under
     def search_file_log(
-            self, limit, activity_types, unique, include_glob, exclude_glob):
+            self, limit, access_types, unique, include_glob, exclude_glob):
         """
         Return an iterator which yields file access information.
 
         :type          limit: int
         :arg           limit: maximum number of files to list
-        :type activity_types: tuple
-        :arg  activity_types: subset of :attr:`ACTIVITY_TYPES`
+        :type   access_types: tuple
+        :arg    access_types: subset of :attr:`ACCESS_TYPES`
         :type         unique: bool
         :arg          unique: if true (default), strip off duplications
         :type   include_glob: list
@@ -191,8 +194,9 @@ class DataBase(object):
         :rtype: list of AccessInfo
 
         """
+        i2at = self.int_to_access_type
         with self._get_db() as db:
             cursor = db.execute(*self._script_search_file_log(
-                limit, activity_types, unique, include_glob, exclude_glob))
-            for row in cursor:
-                yield AccessInfo(*row)
+                limit, access_types, unique, include_glob, exclude_glob))
+            for (path, point, recorded, atype) in cursor:
+                yield AccessInfo(path, point, recorded, i2at[atype])
