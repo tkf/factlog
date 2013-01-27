@@ -142,11 +142,15 @@ for more information."
 (defvar anything-c-source-factlog-list (factlog:list-make-source 'anything))
 
 (defun helm-factlog-list ()
+  "List recently opened files.
+This can be customized by `factlog:list-args'."
   (interactive)
   (factlog:helm :sources '(helm-c-source-factlog-list)
                 :buffer "*helm factlog list*"))
 
 (defun anything-factlog-list ()
+  "List recently opened files.
+See `helm-factlog-list' for more info."
   (interactive)
   (factlog:anything :sources '(anything-c-source-factlog-list)
                     :buffer "*anything factlog list*"))
@@ -202,11 +206,16 @@ Example::
   (factlog:list-notes-make-source 'anything))
 
 (defun helm-factlog-list-notes ()
+  "List recently opened notes.
+This can be customized by `factlog:list-notes-args' and
+`factlog:list-notes-dirs'."
   (interactive)
   (factlog:helm :sources '(helm-c-source-factlog-list-notes)
                 :buffer "*helm factlog list notes*"))
 
 (defun anything-factlog-list-notes ()
+  "List recently opened notes.
+See `helm-factlog-list-notes' for more info."
   (interactive)
   (factlog:anything :sources '(anything-c-source-factlog-list-notes)
                     :buffer "*anything factlog list notes*"))
