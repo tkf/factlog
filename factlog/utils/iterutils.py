@@ -22,6 +22,15 @@ def interleave(*iteratives):
 
 
 def uniq(seq, key=lambda x: x):
+    """
+    Return unique elements in `seq`, preserving the order.
+
+    >>> list(uniq([0, 1, 0, 2, 1, 2]))
+    [0, 1, 2]
+    >>> list(uniq(enumerate('iljkiljk'), key=lambda x: x[1]))
+    [(0, 'i'), (1, 'l'), (2, 'j'), (3, 'k')]
+
+    """
     seen = set()
     for i in seq:
         k = key(i)
