@@ -21,7 +21,7 @@ class TestGetTitle(unittest.TestCase):
             fp.write(textwrap.dedent(content))
         return path
 
-    def test_rst_title(self):
+    def test_get_title_rst(self):
         path = self.create_file(
             'test.rst',
             """
@@ -30,7 +30,7 @@ class TestGetTitle(unittest.TestCase):
             """)
         self.assertEqual(filetitle.get_title(path), 'Title')
 
-    def test_md_title_sharp(self):
+    def test_get_title_md_sharp(self):
         path = self.create_file(
             'test.md',
             """
@@ -38,7 +38,7 @@ class TestGetTitle(unittest.TestCase):
             """)
         self.assertEqual(filetitle.get_title(path), 'Title')
 
-    def test_md_title_underline(self):
+    def test_get_title_md_underline(self):
         path = self.create_file(
             'test.md',
             """
@@ -47,7 +47,7 @@ class TestGetTitle(unittest.TestCase):
             """)
         self.assertEqual(filetitle.get_title(path), 'Title')
 
-    def test_org_title(self):
+    def test_get_title_org(self):
         path = self.create_file(
             'test.org',
             """
@@ -55,7 +55,7 @@ class TestGetTitle(unittest.TestCase):
             """)
         self.assertEqual(filetitle.get_title(path), 'Title')
 
-    def test_py_title(self):
+    def test_get_title_py(self):
         path = self.create_file(
             'test.py',
             """
