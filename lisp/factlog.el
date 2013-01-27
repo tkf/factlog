@@ -26,6 +26,7 @@
 
 ;;; Code:
 
+(eval-when-compile (require 'cl))
 (require 'recentf)
 (require 'deferred)
 
@@ -104,9 +105,21 @@
     (remove-hook 'kill-buffer-hook 'factlog:kill-buffer-handler)))
 
 
-;;; Helm/anything interface
-(declare-function helm "helm")
-(declare-function anything "anything")
+;;; Helm/anything compatibility
+
+(defvar factlog:helm-compat-realvalue
+  (if (locate-library "helm") 'helm-realvalue 'anything-realvalue))
+
+(defun factlog:helm (&rest args)
+  (let ((factlog:helm-compat-realvalue 'helm-realvalue))
+    (apply 'helm args)))
+
+(defun factlog:anything (&rest args)
+  (let ((factlog:helm-compat-realvalue 'anything-realvalue))
+    (apply 'anything args)))
+
+
+;;; List recently opened files
 
 (defcustom factlog:list-args nil
   "Arguments to be used when `helm-factlog-list' or
@@ -130,13 +143,73 @@ for more information."
 
 (defun helm-factlog-list ()
   (interactive)
-  (helm :sources '(helm-c-source-factlog-list)
-        :buffer "*helm factlog list*"))
+  (factlog:helm :sources '(helm-c-source-factlog-list)
+                :buffer "*helm factlog list*"))
 
 (defun anything-factlog-list ()
   (interactive)
-  (anything :sources '(anything-c-source-factlog-list)
-            :buffer "*anything factlog list*"))
+  (factlog:anything :sources '(anything-c-source-factlog-list)
+                    :buffer "*anything factlog list*"))
+
+
+;;; List recently opened notes
+
+(defcustom factlog:list-notes-args nil
+  "Arguments to be used when `helm-factlog-list-notes' or
+`anything-factlog-list-notes' is called.  See ``factlog list --help``
+for more information."
+  :group 'factlog)
+
+(defcustom factlog:list-notes-dirs nil
+  "Full path to the directory where you keep notes.
+
+Example::
+
+    (setq factlog:list-notes-dirs '(\"~/howm\"))
+"
+  :group 'factlog)
+
+(defun factlog:list-notes-get-args ()
+  (append
+   '("list" "--title")
+   factlog:list-notes-args
+   (loop for dir in factlog:list-notes-dirs
+         collect "--under"
+         collect (expand-file-name dir))))
+
+(defun factlog:list-notes-call-process (buffer)
+  (factlog:call-process (factlog:list-notes-get-args) buffer))
+
+(defun factlog:list-notes-real-to-display (candidate)
+  (if (string-match "^\\([^:]+\\):\\(.+\\)" candidate)
+      (let ((file (match-string 1 candidate))
+            (title (match-string 2 candidate)))
+        (propertize title factlog:helm-compat-realvalue file))
+    candidate))
+
+(defun factlog:list-notes-make-source (helm)
+  (let ((get-buffer (intern (format "%s-candidate-buffer" helm))))
+    `((name . "factlog list notes")
+      (candidates-in-buffer)
+      (real-to-display . factlog:list-notes-real-to-display)
+      (init . (lambda ()
+                (factlog:list-notes-call-process (,get-buffer 'global))))
+      (type . file))))
+
+(defvar helm-c-source-factlog-list-notes
+  (factlog:list-notes-make-source 'helm))
+(defvar anything-c-source-factlog-list-notes
+  (factlog:list-notes-make-source 'anything))
+
+(defun helm-factlog-list-notes ()
+  (interactive)
+  (factlog:helm :sources '(helm-c-source-factlog-list-notes)
+                :buffer "*helm factlog list notes*"))
+
+(defun anything-factlog-list-notes ()
+  (interactive)
+  (factlog:anything :sources '(anything-c-source-factlog-list-notes)
+                    :buffer "*anything factlog list notes*"))
 
 (provide 'factlog)
 
