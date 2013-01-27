@@ -27,13 +27,13 @@ def gene_iparse_underline_headings(symbols):
     return iparse_underline_headings
 
 
-def gene_iparse_prefix_headings(regexp):
-    prefix_re = re.compile(r'^{0} .+'.format(regexp))
+def gene_iparse_prefix_headings(prefixes):
+    prefix_re = re.compile(r'^{0} .+'.format(re.escape(prefixes)))
 
     def iparse_prefix_headings(lines):
         for line in lines:
             if prefix_re.match(line):
-                yield line.strip("#").strip()
+                yield line.strip(prefixes).strip()
             else:
                 yield
 
@@ -44,8 +44,8 @@ iparse_rst_underline_headings = gene_iparse_underline_headings(
     '[!-/:-@[-`{-~]')
 # See also: docutils.parsers.rst.states.Body.pats['nonalphanum7bit']
 
-iparse_sharps_headings = gene_iparse_prefix_headings('#{1,6}')
-iparse_asterisk_headings = gene_iparse_prefix_headings(r'\*+')
+iparse_sharps_headings = gene_iparse_prefix_headings('#')
+iparse_asterisk_headings = gene_iparse_prefix_headings('*')
 
 
 def first(iterative):
