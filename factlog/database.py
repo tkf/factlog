@@ -88,7 +88,7 @@ class DataBase(object):
     @classmethod
     def _script_search_file_log(
             cls, limit, access_types, unique, include_glob, exclude_glob,
-            exists, program):
+            file_exists, program):
         # FIXME: support `unique` (currently ignored)
         params = []
         conditions = []
@@ -97,9 +97,9 @@ class DataBase(object):
                 ', '.join(repeat('?', len(access_types)))))
             params.extend(map(cls.access_type_to_int.get, access_types))
 
-        if exists is not None:
+        if file_exists is not None:
             conditions.append('file_exists = ?')
-            params.append(exists)
+            params.append(file_exists)
 
         conditions.extend(concat_expr(
             'OR', repeat('glob(?, file_path)', len(include_glob))))
@@ -135,7 +135,8 @@ class DataBase(object):
         """
         @functools.wraps(func)
         def wrapper(self, limit, access_types=None, unique=True,
-                    include_glob=[], exclude_glob=[], exists=None, program=[],
+                    include_glob=[], exclude_glob=[],
+                    file_exists=None, program=[],
                     under=[], relative=False,
                     only_existing=True):
             # These keyword arguments are modified by wrappers and
@@ -143,7 +144,7 @@ class DataBase(object):
             return func(
                 self, limit=limit, access_types=access_types, unique=unique,
                 include_glob=include_glob, exclude_glob=exclude_glob,
-                exists=exists, program=program,
+                file_exists=file_exists, program=program,
                 under=under, relative=relative,
                 only_existing=only_existing)
         return wrapper
@@ -197,8 +198,8 @@ class DataBase(object):
         :arg    include_glob: a list of glob expression
         :type   exclude_glob: list
         :arg    exclude_glob: a list of glob expression
-        :type         exists: bool or None
-        :arg          exists: whether the file exists at *recording* time
+        :type    file_exists: bool or None
+        :arg     file_exists: whether the file exists at *recording* time
         :type        program: list
         :arg         program: a list of string (program name)
 
