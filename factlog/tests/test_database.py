@@ -160,6 +160,17 @@ class TestInMemoryDataBase(unittest.TestCase):
         self.assertEqual(info.type, atype)
         self.assertEqual(info.point, point)
 
+    def test_search_access_type(self):
+        self.db.record_file_log(self.paths[0], 'write')
+        self.db.record_file_log(self.paths[1], 'open')
+        self.db.record_file_log(self.paths[2], 'close')
+        rows = self.search_file_log(activity_types=['write'])
+        self.assertEqual([i.path for i in rows], [self.paths[0]])
+        rows = self.search_file_log(activity_types=['open'])
+        self.assertEqual([i.path for i in rows], [self.paths[1]])
+        rows = self.search_file_log(activity_types=['close'])
+        self.assertEqual([i.path for i in rows], [self.paths[2]])
+
     def setup_search_uniquify(self):
         for _ in range(3):
             self.db.record_file_log(self.paths[0], 'write')
