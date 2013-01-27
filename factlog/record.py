@@ -155,9 +155,10 @@ def list_run(
     newline = '\0' if null else '\n'
     db = get_db()
     rows = db.search_file_log(
-        limit, access_types, unique, include_glob, exclude_glob,
-        file_exists, program,
-        under, relative)
+        limit=limit, access_types=access_types, unique=unique,
+        include_glob=include_glob, exclude_glob=exclude_glob,
+        file_exists=file_exists, program=program,
+        under=under, relative=relative)
     write_listed_rows(rows, newline, **kwds)
 
 
