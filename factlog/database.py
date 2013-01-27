@@ -50,7 +50,8 @@ class DataBase(object):
                 [version, schema_version])
             db.commit()
 
-    def record_file_log(self, file_path, access_type, file_point=None):
+    def record_file_log(self, file_path, access_type, file_point=None,
+                        file_exists=None, program=None):
         """
         Record file activity.
 
@@ -58,6 +59,9 @@ class DataBase(object):
         :arg      file_path: path to the file
         :type    file_point: int or None
         :arg     file_point: point of cursor at the time of saving.
+        :type   file_exists: bool or None
+        :arg    file_exists: True if the file exists.  If None (default),
+                             call `os.path.exists` to automatically record.
         :type   access_type: str
         :arg    access_type: one of 'write', 'open', 'close'
 
@@ -65,20 +69,20 @@ class DataBase(object):
         to the database.
 
         """
-        # FIXME: Record file existence.  If it does not exist when
-        #        opened and it does after the next save, it means that
-        #        the file is created at that time.
         # FIXME: Add more activities (if possible):
         #        create/delete/move/copy
         access_type = self.access_type_to_int[access_type]
         file_path = os.path.abspath(file_path)
+        if file_exists is None:
+            file_exists = os.path.exists(file_path)
         with self._get_db() as db:
             db.execute(
                 """
-                INSERT INTO access_log (file_path, file_point, access_type)
-                VALUES (?, ?, ?)
+                INSERT INTO access_log
+                    (file_path, file_point, file_exists, access_type, program)
+                VALUES (?, ?, ?, ?, ?)
                 """,
-                [file_path, file_point, access_type])
+                [file_path, file_point, file_exists, access_type, program])
             db.commit()
 
     @classmethod
