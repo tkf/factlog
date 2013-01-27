@@ -22,15 +22,19 @@ def record_add_arguments(parser):
     parser.add_argument(
         '--file-point', type=int,
         help="point of cursor at the time of saving.")
+    parser.add_argument(
+        '--program',
+        help="program used for accessing file.")
 
 
-def record_run(file_path, file_point, access_type):
+def record_run(file_path, file_point, access_type, program):
     """
     Record activities on file.
     """
     db = get_db()
     db.record_file_log(
-        file_path, file_point=file_point, access_type=access_type)
+        file_path, file_point=file_point, access_type=access_type,
+        program=program)
 
 
 def list_add_arguments(parser):
