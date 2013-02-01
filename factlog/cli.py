@@ -44,10 +44,7 @@ def get_parser(commands):
 
 
 def main(args=None):
-    # cli.py can be executed as a script (python factlog/cli.py).
-    # In that case, relative import cannot be used:
-    from factlog import record
-    # from notman import search
+    from . import record
     parser = get_parser(
         record.commands
         # + search.commands
