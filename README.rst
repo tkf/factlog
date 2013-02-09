@@ -1,6 +1,15 @@
 factlog - File ACTivity LOGger
 ==============================
 
+
+.. sidebar:: Links:
+
+   * `Repository <https://github.com/tkf/factlog>`_ (at GitHub)
+   * `Issue tracker <https://github.com/tkf/factlog/issues>`_ (at GitHub)
+   * `PyPI <http://pypi.python.org/pypi/factlog>`_
+   * `Travis CI <https://travis-ci.org/#!/tkf/factlog>`_ |build-status|
+
+
 Factlog logs your activity on files and uses it for searching.
 
 
@@ -31,6 +40,51 @@ I touched."::
   factlog list -C 50 | grep 'def record'
 
 
+Editor plugin
+-------------
+
+Factlog currently only have Emacs integration.  If you make a plugin
+for other editors, please let me know.  See `interfaces for plugin`_
+for more information.
+
+Emacs
+^^^^^
+
+Factlog has Emacs plugin.
+You can get `factlog.el` from factlog repository_.
+
+Command line programs
+^^^^^^^^^^^^^^^^^^^^^
+
+Factlog is easy to integrate with command line programs such as
+``less`` and ``vim``.  See ``shell/config.sh`` for sample setup.
+You can use ``shell/config.sh`` like this::
+
+   source PATH/TO/factlog/shell/config.sh
+   alias less="factlog-record-wrapper \\less"
+   alias vim="factlog-record-wrapper \\vim"
+
+
+Interfaces for plugin
+---------------------
+
+Command line interface
+^^^^^^^^^^^^^^^^^^^^^^
+
+If your editor can run a command line program, it is possible to
+write a factlog plugin!  See ``factlog record --help``.
+
+RPC interface
+^^^^^^^^^^^^^
+
+Work in progress...
+
+Python interface
+^^^^^^^^^^^^^^^^
+
+Work in progress...
+
+
 More to come / ideas
 --------------------
 
@@ -39,3 +93,18 @@ More to come / ideas
 - Understand "project" (VCS repository).
 - Concurrent grep.
 - Extract URLs in the documents and use them as URL bookmark.
+
+
+..
+   License
+   -------
+
+   Factlog is licensed under GPL v3.
+   See COPYING for details.
+
+
+.. Travis CI build status badge
+.. |build-status|
+   image:: https://secure.travis-ci.org/tkf/factlog.png?branch=master
+   :target: http://travis-ci.org/tkf/factlog
+   :alt: Build Status
