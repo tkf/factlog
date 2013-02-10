@@ -95,12 +95,11 @@ More to come / ideas
 - Extract URLs in the documents and use them as URL bookmark.
 
 
-..
-   License
-   -------
+License
+-------
 
-   Factlog is licensed under GPL v3.
-   See COPYING for details.
+Factlog is licensed under LGPL v3.
+See COPYING for details.
 
 
 .. Travis CI build status badge
