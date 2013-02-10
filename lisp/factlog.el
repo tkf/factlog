@@ -88,6 +88,7 @@
 (defun factlog:kill-buffer-handler ()
   (factlog:record-current-file "close"))
 
+;;;###autoload
 (define-minor-mode factlog-mode
   "FactLog mode -- file activity logger.
 
@@ -141,6 +142,7 @@ for more information."
 (defvar helm-c-source-factlog-list (factlog:list-make-source 'helm))
 (defvar anything-c-source-factlog-list (factlog:list-make-source 'anything))
 
+;;;###autoload
 (defun helm-factlog-list ()
   "List recently opened files.
 This can be customized by `factlog:list-args'."
@@ -148,6 +150,7 @@ This can be customized by `factlog:list-args'."
   (factlog:helm :sources '(helm-c-source-factlog-list)
                 :buffer "*helm factlog list*"))
 
+;;;###autoload
 (defun anything-factlog-list ()
   "List recently opened files.
 See `helm-factlog-list' for more info."
@@ -205,6 +208,7 @@ Example::
 (defvar anything-c-source-factlog-list-notes
   (factlog:list-notes-make-source 'anything))
 
+;;;###autoload
 (defun helm-factlog-list-notes ()
   "List recently opened notes.
 This can be customized by `factlog:list-notes-args' and
@@ -213,6 +217,7 @@ This can be customized by `factlog:list-notes-args' and
   (factlog:helm :sources '(helm-c-source-factlog-list-notes)
                 :buffer "*helm factlog list notes*"))
 
+;;;###autoload
 (defun anything-factlog-list-notes ()
   "List recently opened notes.
 See `helm-factlog-list-notes' for more info."
