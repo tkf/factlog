@@ -129,6 +129,6 @@ See COPYING for details.
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-__version__ = '0.0.1.dev0'
+__version__ = '0.0.1'
 __author__ = 'Takafumi Arakaki'
 __license__ = 'GNU Lesser General Public License v3 (LGPLv3)'
