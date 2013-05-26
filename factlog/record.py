@@ -72,12 +72,12 @@ def list_add_arguments(parser):
         Include all duplicates.  See also --format.
         """)
     parser.add_argument(
-        '--include-glob', metavar='GLOB', default=[], action='append',
+        '--include-glob', '-g', metavar='GLOB', default=[], action='append',
         help="""
         Include only paths that match to unix-style GLOB pattern.
         """)
     parser.add_argument(
-        '--exclude-glob', metavar='GLOB', default=[], action='append',
+        '--exclude-glob', '-G', metavar='GLOB', default=[], action='append',
         help="""
         Exclude paths that match to unix-style GLOB pattern.
         """)
@@ -99,7 +99,7 @@ def list_add_arguments(parser):
         Include only files not existed at *recording* time.
         """)
     parser.add_argument(
-        '--under', metavar='PATH', default=[], action='append',
+        '--under', '-u', metavar='PATH', default=[], action='append',
         help="""
         Show only paths under PATH.  See also: --relative.
         """)
